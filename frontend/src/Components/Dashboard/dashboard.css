@@ -1,0 +1,69 @@
+/* Set gray background color and 100% height */
+.sidenav {
+    position: absolute;
+    top: 10;
+    left: 0;
+    background-color: #f1f1f1;
+    height: 100%;
+    padding: 20px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center items horizontally */
+  }
+  
+  /* Style the logo */
+  .sidenav h2 {
+    color: #333; /* Dark text color */
+    margin-bottom: 20px; /* Add some spacing below the logo */
+  }
+  
+  /* Style the nav links */
+  .sidenav ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column; /* Align items vertically */
+  }
+  
+  .sidenav li {
+    margin-bottom: 10px; /* Add some spacing between list items */
+  }
+  
+  .sidenav a {
+    color: #333; /* Dark text color */
+    text-decoration: none;
+  }
+  
+  .sidenav a:hover {
+    text-decoration: underline;
+  }
+  
+  /* Set a max-width for the container to prevent it from stretching too wide */
+  .container-fluid {
+    max-width: 1200px;
+    margin: 0 auto; /* Center the container */
+  }
+  
+  /* Set position and width for content */
+  .col-sm-9 {
+    position: absolute;
+    top: 10;
+    right: 0;
+    width: calc(100% - 300px); /* Adjust based on your sidenav width */
+  }
+  
+  /* Responsive adjustments */
+  @media screen and (max-width: 767px) {
+    .sidenav {
+      position: static;
+      height: auto;
+      padding: 15px;
+    }
+  
+    .col-sm-9 {
+      position: static;
+      width: 100%;
+    }
+  }
+  
