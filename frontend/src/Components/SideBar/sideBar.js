@@ -36,25 +36,6 @@ export default function SideBar() {
 
     return (
         <>
-            {/* <div>
-                <Container className="new-post">
-                    <div className="profile-gateway">
-                        <img src={currentUser.profilePic} alt="profilePic" />
-                        <div>
-                            <Link to={`/profile/${currentUser.userID}`}>
-                                <p>{currentUser.userID}</p>
-                            </Link>
-                            <p className="name">{currentUser.name}</p>
-                        </div>
-                    </div>
-                    <div className="btn" onClick={bringForm}>
-                        <AddCircleIcon />
-                        <p>Add a Post</p>
-                        <div className="box"></div>
-                    </div>
-                </Container>
-                <Form />
-            </div> */}
             <div className={`sidebar ${isCollapsed ? "collapsed" : ""}`}>
                 <div className="logo_container">
                     <Navbar>

@@ -20,7 +20,7 @@ export default function Login() {
     const [password, setPassword] = useState("");
 
     const ProfileData = useSelector((state) => state.profileData);
-
+    console.log("ProfileData",ProfileData);
     const ExistedUsers = Object.keys(ProfileData);
 
     const runLogin = (e) => {
@@ -64,7 +64,7 @@ export default function Login() {
                         value={userID}
                         onChange={(e) => setUserID(e.target.value)}
                         type="text"
-                        placeholder="Fake Username"
+                        placeholder="Username"
                     />
                     <input
                         type="password"
@@ -72,6 +72,7 @@ export default function Login() {
                         onChange={(e) => setPassword(e.target.value)}
                     />
                     <button onClick={runLogin}>Log in</button>
+                    <p>Don't have an account ?</p><Link to={"/register"}>Register</Link>
                 </Form>
                 <div className="warning">Username already Exist!</div>
             </Container>

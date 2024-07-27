@@ -14,8 +14,8 @@ export default function Home() {
             <div className="App">
                 <div className="section">
                     {/* <Stories /> */}
-                    {/* <Post /> */}
                     <Sidebar />
+                    <Post />
                     <Form />
                     {/* <Footer /> */}
                 </div>
