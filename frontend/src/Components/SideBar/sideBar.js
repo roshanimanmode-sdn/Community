@@ -17,17 +17,13 @@ import Icon from "../../assets/sidebar/forms.svg";
 import settingIcon from "../../assets/sidebar/setting.svg";
 import userIcon from "../../assets/sidebar/roles.svg";
 import viewProfileIcon from "../../assets/sidebar/viewProfile.svg";
+import archieveIcon from "../../assets/sidebar/archieve.svg";
 
 
 export default function SideBar() {
     const usersData = useSelector((state) => state.profileData);
     const usersList = Object.keys(usersData);
     const currentUser = usersData[usersList[usersList.length - 1]];
-
-    const bringForm = () => {
-        let form = document.querySelector(".new-img");
-        form.classList.toggle("active");
-    };
 
     const [isCollapsed, setIsCollapsed] = useState(false);
     const toggle = () => {
@@ -57,12 +53,6 @@ export default function SideBar() {
                         <Nav className="me-auto" navbar>
                             <NavItem>
                                 <Link to={URL}>
-                                    <div className="d-flex gap-3 link align-items-center nav_space" onClick={bringForm}>
-                                        <div className="icon-wrap">
-                                            <img src={userIcon} alt="icon" />
-                                        </div>
-                                        <h4 className={`collapse_block ${isCollapsed ? "hide" : ""}`}>Add Post</h4>
-                                    </div>
                                     <div className="d-flex gap-3 link align-items-center nav_space">
                                         <div className="icon-wrap">
                                             <img src={viewProfileIcon} alt="icon" />
@@ -71,19 +61,25 @@ export default function SideBar() {
                                     </div>
                                     <div className="d-flex gap-3 link align-items-center nav_space">
                                         <div className="icon-wrap">
-                                            <img src={settingIcon} alt="icon" />
-                                        </div>
-                                        <h4 className={`collapse_block ${isCollapsed ? "hide" : ""}`}>Settings</h4>
-                                    </div>
-                                    <div className="d-flex gap-3 link align-items-center nav_space">
-                                        <div className="icon-wrap">
                                             <img src={Icon} alt="icon" />
                                         </div>
                                         <h4 className={`collapse_block ${isCollapsed ? "hide" : ""}`}>Notification</h4>
                                     </div>
+                                    <div className="d-flex gap-3 link align-items-center nav_space">
+                                        <div className="icon-wrap">
+                                            <img src={archieveIcon} alt="icon" />
+                                        </div>
+                                        <h4 className={`collapse_block ${isCollapsed ? "hide" : ""}`}>Archieve</h4>
+                                    </div>
+                                    <div className="d-flex gap-3 link align-items-center nav_space">
+                                        <div className="icon-wrap">
+                                            <img src={settingIcon} alt="icon" />
+                                        </div>
+                                        <h4 className={`collapse_block ${isCollapsed ? "hide" : ""}`}>Settings</h4>
+                                    </div>
                                 </Link>
                             </NavItem>
-                        </Nav>
+                        </Nav>  
                     </Navbar>
                 </div>
             </div>

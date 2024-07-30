@@ -15,7 +15,7 @@ export default function Home() {
                 <div className="section">
                     {/* <Stories /> */}
                     <Sidebar />
-                    <Post />
+                    {/* <Post /> */}
                     <Form />
                     {/* <Footer /> */}
                 </div>

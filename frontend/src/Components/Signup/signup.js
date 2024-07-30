@@ -1,125 +1,208 @@
 import React, { useEffect, useState } from 'react';
-import { login } from '../../Services/service';
-import { userlogin } from '../../Slice/AuthSlice';
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import styled from "styled-components";
-import FacebookIcon from "@material-ui/icons/Facebook";
-import { handleLogin } from "../../Slice/PostData";
-import { getUserData } from "../../Slice/ProfileData";
+import { handleLogin } from '../../Slice/PostData';
+import { getUserData } from '../../Slice/ProfileData';
+import { registerAPI } from '../../Services/Auth.service';
+import ConfirmPost from '../Form/confirmPost';
 
 export function Signup() {
-    const dispatch = useDispatch();
-    const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-    const [userID, setUserID] = useState("");
-    const [userName, setUserName] = useState("");
-    const [password, setPassword] = useState("");
-    const [community, setCommunity] = useState("");
-    const [phone, setPhone] = useState("");
-    const [state, setState] = useState("");
-    const [city, setCity] = useState("");
-    const [zipcode, setZipcode] = useState("");
+  const [userID, setUserID] = useState("");
+  const [userName, setUserName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [community, setCommunity] = useState("");
+  const [phone, setPhone] = useState("");
+  const [country, setCountry] = useState("");
+  const [state, setState] = useState("");
+  const [city, setCity] = useState("");
+  const [zipcode, setZipcode] = useState("");
+  const [age, setAge] = useState("");
+  const [dob, setDob] = useState("");
+  const [qualification, setQualification] = useState("");
+  const [openModal, setOpenModal] = useState(false);
 
-    const ProfileData = useSelector((state) => state.profileData);
+  const handleSignUp = async (e) => {
+    e.preventDefault();
 
-    const ExistedUsers = Object.keys(ProfileData);
-
-    const handleSignUp = (e) => {
-        e.preventDefault();
-        if (ExistedUsers.indexOf(userID) !== -1) {
-            let warn = document.querySelector(".warning");
-            warn.classList.add("active");
-
-            setTimeout(() => {
-                warn.classList.remove("active");
-            }, 3000);
-
-            return;
-        }
-        navigate("/home");
-        dispatch(handleLogin([userID, userName]));
-        dispatch(getUserData([userID, userName]));
+    const userData = {
+      userID,
+      userName,
+      email,
+      password,
+      confirmPassword,
+      community,
+      phone,
+      country,
+      state,
+      city,
+      zipcode,
+      age,
+      dob,
+      qualification,
     };
+    // console.log('userData:', userData);
 
-    useEffect(() => {
-        let btn = document.querySelector("button");
-        if (!userID || !userName || !password) {
-            btn.setAttribute("disabled", "true");
-        } else {
-            btn.removeAttribute("disabled");
-        }
-    }, [userID, userName, password]);
+    try {
+      // const response = await registerAPI(userData);
+      // console.log('User registered successfully:', response);
+      // if(response?.status) {
+      setOpenModal(true);
+      // dispatch(handleLogin([userID, userName]));
+      // dispatch(getUserData([userID, userName]));
+      // }
+    } catch (error) {
+      console.error('Registration failed:', error);
+    }
+  };
 
-    return (
-        <>
-            <Container>
-                <Form onSubmit={handleSignUp}>
-                    <header className='heading mt-4'><h1><i>Register to Community</i></h1></header>
-                    <Input
-                        value={userName}
-                        onChange={(e) => setUserName(e.target.value)}
-                        type="text"
-                        placeholder="Your Full Name"
-                    />
-                    <Input
-                        value={userID}
-                        onChange={(e) => setUserID(e.target.value)}
-                        type="text"
-                        placeholder="Username"
-                    />
-                    <Input
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        max={10}
-                        type="text"
-                        placeholder="Phone No."
-                    />
-                    <Input
-                        value={community}
-                        onChange={(e) => setCommunity(e.target.value)}
-                        type="text"
-                        placeholder="Your Community"
-                    />
-                    <Input
-                        value={state}
-                        onChange={(e) => setState(e.target.value)}
-                        type="text"
-                        placeholder="State"
-                    />
-                    <Input
-                        value={city}
-                        onChange={(e) => setCity(e.target.value)}
-                        type="text"
-                        placeholder="City"
-                    />
-                    <Input
-                        value={zipcode}
-                        onChange={(e) => setZipcode(e.target.value)}
-                        type="text"
-                        placeholder="Zipcode"
-                    />
-                    <Input
-                        type="password"
-                        placeholder="Password"
-                        onChange={(e) => setPassword(e.target.value)}
-                    />
-                    <StyledButton type="submit">Sign up</StyledButton>
-                    <Footer>
-                        <p>Already have an account?</p>
-                        <StyledLink to={"/"}>Login</StyledLink>
-                    </Footer>
-                </Form>
-                <div className="warning">Username already exists!</div>
-            </Container>
-        </>
-    );
+  const handleConfirmVisibility = () => {
+    // Handle the action to make profile visible
+    setOpenModal(false);
+    navigate('/home');
+  };
+
+  const handleCloseModal = () => {
+    // Handle the action to close modal
+    setOpenModal(false);
+    navigate('/home');
+  };
+
+  return (
+    <>
+      <Container>
+        {openModal && (
+          <ConfirmPost
+            isOpen={openModal}
+            onConfirm={handleConfirmVisibility}
+            onClose={handleCloseModal}
+          />
+        )}
+        <Form onSubmit={handleSignUp}>
+          <header className='heading mt-4'><h1><i>Register</i></h1></header>
+          <label>Basic Information</label>
+          <FormRow>
+            <Input
+              value={userName}
+              onChange={(e) => setUserName(e.target.value)}
+              type="text"
+              placeholder="Full Name"
+            />
+            <Input
+              value={userID}
+              onChange={(e) => setUserID(e.target.value)}
+              type="text"
+              placeholder="Username"
+            />
+          </FormRow>
+          <FormRow>
+            <Input
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              type="text"
+              placeholder="Phone No."
+            />
+            <Input
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              type="text"
+              placeholder="email"
+            />
+          </FormRow>
+          <FormRow>
+            <Input
+              value={country}
+              onChange={(e) => setCountry(e.target.value)}
+              type="text"
+              placeholder="Country"
+            />
+            <Input
+              value={state}
+              onChange={(e) => setState(e.target.value)}
+              type="text"
+              placeholder="State"
+            />
+
+          </FormRow>
+          <FormRow>
+            <Input
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+              type="text"
+              placeholder="City"
+            />
+            <Input
+              value={zipcode}
+              onChange={(e) => setZipcode(e.target.value)}
+              type="text"
+              placeholder="Zipcode"
+            />
+          </FormRow>
+          <FormRow>
+            <Input
+              value={age}
+              onChange={(e) => setAge(e.target.value)}
+              type="number"
+              placeholder="Age"
+              min="0"
+            />
+            <Input
+              value={dob}
+              onChange={(e) => setDob(e.target.value)}
+              type="text"
+              placeholder="DOB"
+            />
+          </FormRow>
+          <FormRow>
+            <Input
+              type="password"
+              placeholder="Password"
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <Input
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              type="text"
+              placeholder="Confirm Password"
+            />
+          </FormRow>
+          {/* <hr></hr> */}
+          <label>Additional Information</label>
+          <FormRow>
+            <Input
+              value={qualification}
+              onChange={(e) => setQualification(e.target.value)}
+              type="text"
+              placeholder="Qualification"
+            />
+            <Input
+              value={community}
+              onChange={(e) => setCommunity(e.target.value)}
+              type="text"
+              placeholder="Community"
+            />
+          </FormRow>
+
+          <StyledButton type="submit">Sign up</StyledButton>
+          <Footer>
+            <p>Already have an account?</p>
+            <StyledLink to={"/"}>Login</StyledLink>
+          </Footer>
+        </Form>
+        <div className="warning">Username already exists!</div>
+      </Container>
+    </>
+  );
 }
-
+// background: linear-gradient(50deg, #d6249f, #285aeb);
 const Container = styled.div`
-  background: linear-gradient(50deg, #d6249f, #285aeb);
+ 
   height: 100vh;
   display: flex;
   justify-content: center;
@@ -154,7 +237,7 @@ const Form = styled.form`
   background: white;
   border-radius: 10px;
   padding: 20px;
-  width: 300px;
+  width: 500px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
 
   .heading {
@@ -163,8 +246,17 @@ const Form = styled.form`
   }
 `;
 
+const FormRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+
+  &:not(:last-child) {
+    margin-bottom: 10px;
+  }
+`;
+
 const Input = styled.input`
-  margin: 10px 0;
   border: 1px solid #757676;
   border-radius: 5px;
   height: 35px;
