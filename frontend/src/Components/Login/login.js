@@ -14,12 +14,8 @@ export default function Login() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const [userID, setUserID] = useState("");
-  const [userName, setUserName] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
-  const ProfileData = useSelector((state) => state.profileData);
-  const ExistedUsers = Object.keys(ProfileData);
 
   const runLogin = (e) => {
     e.preventDefault();
@@ -28,8 +24,8 @@ export default function Login() {
       // console.log('User registered successfully:', response);
       // if(response?.status) {
       navigate("/home");
-      dispatch(handleLogin([userID, userName]));
-      dispatch(getUserData([userID, userName]));
+      // dispatch(handleLogin([email, userName]));
+      // dispatch(getUserData([userID, userName]));
       // }
     } catch (error) {
       console.error('Registration failed:', error);
@@ -42,20 +38,14 @@ export default function Login() {
         <Form onSubmit={runLogin}>
           <header className='heading mt-4'><h1><i>Login</i></h1></header>
           <Input
-            value={userName}
-            onChange={(e) => setUserName(e.target.value)}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             type="text"
-            placeholder="Your Name"
-          />
-          <Input
-            value={userID}
-            onChange={(e) => setUserID(e.target.value)}
-            type="text"
-            placeholder="Fake Username"
+            placeholder="Email"
           />
           <Input
             type="password"
-            placeholder="Fake Password"
+            placeholder="Password"
             onChange={(e) => setPassword(e.target.value)}
           />
           <StyledButton type="submit">Log in</StyledButton>

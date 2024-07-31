@@ -5,44 +5,51 @@ import User from '../../model/user/db-schema.js';
 import sendEmail from "../../middleware/sendEmail.js";
 import { forgotPasswordEmailTemplate } from "../../const/template.js";
 import moment from "moment";
+import mongoose from "mongoose";
 
-export const register = async(req,res)=> {
-    try {
-      const {firstName,lastName,middleName,email,password,phoneNumber,gender,age,profilePic,dob,address,role}= req.body;
-      const useSignup = new User({
-        name:firstName+ " " + middleName + " " + lastName,
-        phoneNumber:phoneNumber,
-        email:email,
-        gender:gender,
-        age:age,
-        dob:dob,
-        address:address,
-        role:role,
-        password:bcrypt.hashSync(password, 8),
-        // profilePic:req.file.filename
-      })
-      const result = await useSignup.save();
-      if (result) {
-        return res.status(responseCodes.successCode).json({
-          status: responseStatus.successStatus,
-          statusCode: responseCodes.successCode,
-          message: messages.showSuccess,
-        });
-      }
-    } catch (e) {
-      console.log("e :------", e);
-      return res.status(responseCodes.internalServerError).json({
-        status: responseStatus.failedStatus,
-        statusCode: responseCodes.internalServerError,
-        message: messages.internalServerError,
+// register user.
+export const register = async (req, res) => {
+  try {
+    const { fullName, userName, email, password, phoneNumber, gender, age, profilePic, dob, address, role, qualification, commuity } = req.body;
+    const useSignup = new User({
+      fullName: fullName,
+      userName: userName,
+      phoneNumber: phoneNumber,
+      email: email,
+      gender: gender,
+      age: age,
+      dob: dob,
+      address: address,
+      qualification: qualification,
+      community: commuity,
+      role: role,
+      password: bcrypt.hashSync(password, 8),
+      // profilePic:req.file.filename
+    })
+    const result = await useSignup.save();
+    if (result) {
+      return res.status(responseCodes.successCode).json({
+        status: responseStatus.successStatus,
+        statusCode: responseCodes.successCode,
+        message: messages.showSuccess,
+        data: result
       });
     }
+  } catch (e) {
+    console.log("e :------", e);
+    return res.status(responseCodes.internalServerError).json({
+      status: responseStatus.failedStatus,
+      statusCode: responseCodes.internalServerError,
+      message: messages.internalServerError,
+    });
+  }
 };
 
-export const login = async(req,res)=>{
+// login user.
+export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    let user = await User.findOne({email: email});
+    let user = await User.findOne({ email: email });
     if (!user) {
       return res.status(responseCodes.failureCode).json({
         status: responseStatus.failedStatus,
@@ -60,7 +67,7 @@ export const login = async(req,res)=>{
     }
     const isPasswordCorrect = await bcrypt.compare(password, user?.password);
     if (isPasswordCorrect) {
-      const token = jwt.sign({_id: user?._id, email: user?.email, role: user?.role}, process.env.JWT_KEY,
+      const token = jwt.sign({ _id: user?._id, email: user?.email, role: user?.role }, process.env.JWT_KEY,
         {
           expiresIn: "24h"
         }
@@ -75,7 +82,7 @@ export const login = async(req,res)=>{
         status: responseStatus.successStatus,
         statusCode: responseCodes.successCode,
         message: messages.loginSuccess,
-        token:token
+        token: token
       });
     } else {
       return res.status(responseCodes.failureCode).json({
@@ -86,19 +93,20 @@ export const login = async(req,res)=>{
     }
   } catch (error) {
     console.log("error :------", error);
-      return res.status(responseCodes.internalServerError).json({
-        status: responseStatus.failedStatus,
-        statusCode: responseCodes.internalServerError,
-        message: messages.internalServerError,
+    return res.status(responseCodes.internalServerError).json({
+      status: responseStatus.failedStatus,
+      statusCode: responseCodes.internalServerError,
+      message: messages.internalServerError,
     });
   }
 };
 
+// forget password.
 export const forgetPassword = async (req, res) => {
   try {
     const { email } = req.body;
     const otp = Math.floor(Math.random() * 900000) + 100000;
-    let user = await User.findOne({email: email});
+    let user = await User.findOne({ email: email });
     // If no user is found with the provided email, send a 404 response
     if (!user) {
       return res.status(responseCodes.failureCode).json({
@@ -111,8 +119,8 @@ export const forgetPassword = async (req, res) => {
     await sendEmail({
       email: email,
       sub: "Reset Your Password",
-      body: forgotPasswordEmailTemplate({email : email, otp: otp})
-    }).then(async()=>{
+      body: forgotPasswordEmailTemplate({ email: email, otp: otp })
+    }).then(async () => {
       user.otp = otp
       user.otpExpiresIn = moment().add(5, "minutes")
       await user.save()
@@ -122,14 +130,14 @@ export const forgetPassword = async (req, res) => {
         message: messages.emailSent
       });
       // return response.successResponse(res, 200, {}, languageSelected.LINK_SENT);
-    }).catch((error)=>{
+    }).catch((error) => {
       console.log("error", error)
       // return response.somethingErrorMsgResponse(res, 500, languageSelected.SOMETHING_WENT_WRONG);
       return res.status(responseCodes.internalServerError).json({
         status: responseStatus.failedStatus,
         statusCode: responseCodes.internalServerError,
         message: messages.internalServerError,
-    });
+      });
     });
 
   } catch (error) {
@@ -142,10 +150,11 @@ export const forgetPassword = async (req, res) => {
   }
 };
 
+// reset password.
 export const resetPassword = async (req, res) => {
   try {
     const { otp, newPassword } = req.body
-    console.log("req.query----",req.query)
+    console.log("req.query----", req.query)
     if (!req.query.email) {
       // return response.errorMessageResponse(res, 400, "Invalid link");
       return res.status(responseCodes.failureCode).json({
@@ -173,7 +182,7 @@ export const resetPassword = async (req, res) => {
         return res.status(responseCodes.failureCode).json({
           status: responseStatus.failedStatus,
           statusCode: 423,
-          message:  "OTP Expired"
+          message: "OTP Expired"
         });
       } else {
         await user.updateOne({ $set: { password: bcrypt.hashSync(newPassword, 10), "otp": "", "otpExpiresIn": "", isActive: true } })
@@ -194,20 +203,21 @@ export const resetPassword = async (req, res) => {
   }
 }
 
-export const changePassword = async(req,res)=>{
+// change password.
+export const changePassword = async (req, res) => {
   try {
-    const {newPassword, oldPassword} = req.body
+    const { newPassword, oldPassword } = req.body
     const userId = req?.user?._id;
     let user = await User.findById(userId);
-    if(await bcrypt.compare(oldPassword, user.password)){
-      await user.updateOne({$set : {password : bcrypt.hashSync(newPassword.toString(), 10)}})
+    if (await bcrypt.compare(oldPassword, user.password)) {
+      await user.updateOne({ $set: { password: bcrypt.hashSync(newPassword.toString(), 10) } })
       // return response.successResponse(res, 200, {}, languageSelected?.PASSWORD_UPDATED);
       return res.status(responseCodes.successCode).json({
         status: responseStatus.successStatus,
         statusCode: responseCodes.successCode,
         message: messages.changePassword
       });
-    }else{
+    } else {
       // return response.errorMessageResponse(res, 400, "Old pasword is not matched.");
       return res.status(responseCodes.failureCode).json({
         status: responseStatus.failedStatus,
@@ -216,7 +226,7 @@ export const changePassword = async(req,res)=>{
       });
     }
   } catch (error) {
-    console.log("error",error)
+    console.log("error", error)
     // return response.somethingErrorMsgResponse(res, 500, languageSelected.ERROR);
     return res.status(responseCodes.internalServerError).json({
       status: responseStatus.failedStatus,
@@ -226,16 +236,55 @@ export const changePassword = async(req,res)=>{
   }
 }
 
-export const updateProfile = async(req,res)=>{
-  try{
-    const {userId,firstName,lastName,middleName,email,password,phoneNumber,gender,age,profilePic,dob,address,role}= req.body;
+// Edit user profile data
+export const updateProfile = async (req, res) => {
+  try {
+    const { userId, firstName, lastName, middleName, email, password, phoneNumber, gender, age, profilePic, dob, address, role } = req.body;
 
-  }catch (error) {
+  } catch (error) {
     console.log("error :------", error);
-      return res.status(responseCodes.internalServerError).json({
-        status: responseStatus.failedStatus,
-        statusCode: responseCodes.internalServerError,
-        message: messages.internalServerError
+    return res.status(responseCodes.internalServerError).json({
+      status: responseStatus.failedStatus,
+      statusCode: responseCodes.internalServerError,
+      message: messages.internalServerError
     });
   }
 }
+
+// Make profile visible to everyone.
+export const setProfileVisible = async (req, res) => {
+  try {
+    const { userId, isProfileVisible } = req.body;
+    let user = await User.findOne({ _id: mongoose.Types.ObjectId(userId) });
+    if (!user) {
+      return res.status(responseCodes.failureCode).json({
+        status: responseStatus.failedStatus,
+        statusCode: responseCodes.failureCode,
+        message: messages.NotFound,
+      });
+    } else {
+      const updateData = await User.findByIdAndUpdate({ _id: mongoose.Types.ObjectId(userId) }, { $set: { isProfileVisible: isProfileVisible } }, { $new: true })
+      console.log("updateData--", updateData);
+      if (updateData) {
+        return res.status(responseCodes.successCode).json({
+          status: responseStatus.successStatus,
+          statusCode: responseCodes.successCode,
+          message: messages.showSuccess
+        });
+      } else {
+        return res.status(responseCodes.internalServerError).json({
+          status: responseStatus.failedStatus,
+          statusCode: responseCodes.internalServerError,
+          message: messages.errorMessage,
+        });
+      }
+    }
+  } catch (error) {
+    console.log("error :------", error);
+    return res.status(responseCodes.internalServerError).json({
+      status: responseStatus.failedStatus,
+      statusCode: responseCodes.internalServerError,
+      message: messages.internalServerError,
+    });
+  }
+};

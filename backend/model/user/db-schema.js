@@ -8,9 +8,15 @@ import mongoose from 'mongoose';
 
 const userSchema = new mongoose.Schema(
   {
-    name: {
+    fullName: {
       type: String,
       required: true,
+    },
+    // it should be unique for all users
+    userName: {
+      type: String,
+      required: true,
+      unique: true
     },
     email: {
       type: String,
@@ -30,6 +36,14 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    qualification: {
+      type: String,
+      required: false
+    },
+    community: {
+      type: String,
+      required: false
+    },
     profilePic: {
       type: String,
       default: "",
@@ -42,7 +56,12 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    // admin will verify the user
     isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    isProfileVisible: {
       type: Boolean,
       default: false,
     },
@@ -56,9 +75,10 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type:String,
+      enum:["0","1"],   // 0-Superadmin, 1-user
+      default: "1",
       // type: mongoose.Types.ObjectId,
-      enum:["0","1","2"],   // 0-Superadmin,1-community-head,2-user
-      ref: "rolesAndPermissions"
+      // ref: "rolesAndPermissions"
     },
     otp:{
       type: Number,

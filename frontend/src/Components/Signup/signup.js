@@ -1,19 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { useDispatch } from "react-redux";
 import styled from "styled-components";
-import { handleLogin } from '../../Slice/PostData';
-import { getUserData } from '../../Slice/ProfileData';
-import { registerAPI } from '../../Services/Auth.service';
 import ConfirmPost from '../Form/confirmPost';
+import { registerAPI } from '../../Services/Auth.service';
 
 export function Signup() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const [userID, setUserID] = useState("");
+  const [fullName, setFullName] = useState("");
   const [userName, setUserName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -27,13 +23,15 @@ export function Signup() {
   const [age, setAge] = useState("");
   const [dob, setDob] = useState("");
   const [qualification, setQualification] = useState("");
+  const [gender, setGender] = useState("");
+  const [profilePhoto, setProfilePhoto] = useState(null);
   const [openModal, setOpenModal] = useState(false);
 
   const handleSignUp = async (e) => {
     e.preventDefault();
 
     const userData = {
-      userID,
+      fullName,
       userName,
       email,
       password,
@@ -47,32 +45,35 @@ export function Signup() {
       age,
       dob,
       qualification,
+      gender,
+      profilePhoto
     };
-    // console.log('userData:', userData);
 
     try {
-      // const response = await registerAPI(userData);
-      // console.log('User registered successfully:', response);
-      // if(response?.status) {
-      setOpenModal(true);
-      // dispatch(handleLogin([userID, userName]));
-      // dispatch(getUserData([userID, userName]));
-      // }
+      const addUser = await registerAPI(userData);
+      console.log("add user--",addUser);
+      if(addUser){
+        setOpenModal(true);
+      }
     } catch (error) {
       console.error('Registration failed:', error);
     }
   };
 
   const handleConfirmVisibility = () => {
-    // Handle the action to make profile visible
     setOpenModal(false);
     navigate('/home');
   };
 
   const handleCloseModal = () => {
-    // Handle the action to close modal
     setOpenModal(false);
     navigate('/home');
+  };
+
+  const handleProfilePhotoChange = (e) => {
+    if (e.target.files[0]) {
+      setProfilePhoto(URL.createObjectURL(e.target.files[0]));
+    }
   };
 
   return (
@@ -87,17 +88,31 @@ export function Signup() {
         )}
         <Form onSubmit={handleSignUp}>
           <header className='heading mt-4'><h1><i>Register</i></h1></header>
+          
+          <ProfilePhotoSection>
+            <ProfilePhotoContainer onClick={() => document.getElementById('profilePhoto').click()}>
+              {profilePhoto ? <img src={profilePhoto} alt="Profile" /> : <span>Upload Profile Photo</span>}
+            </ProfilePhotoContainer>
+            <ProfilePhotoInput
+              type="file"
+              id="profilePhoto"
+              accept="image/*"
+              onChange={handleProfilePhotoChange}
+              style={{ display: 'none' }}
+            />
+          </ProfilePhotoSection>
+
           <label>Basic Information</label>
           <FormRow>
             <Input
-              value={userName}
-              onChange={(e) => setUserName(e.target.value)}
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
               type="text"
               placeholder="Full Name"
             />
             <Input
-              value={userID}
-              onChange={(e) => setUserID(e.target.value)}
+              value={userName}
+              onChange={(e) => setUserName(e.target.value)}
               type="text"
               placeholder="Username"
             />
@@ -113,7 +128,7 @@ export function Signup() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               type="text"
-              placeholder="email"
+              placeholder="Email"
             />
           </FormRow>
           <FormRow>
@@ -129,7 +144,6 @@ export function Signup() {
               type="text"
               placeholder="State"
             />
-
           </FormRow>
           <FormRow>
             <Input
@@ -161,6 +175,14 @@ export function Signup() {
             />
           </FormRow>
           <FormRow>
+            <Select value={gender} onChange={(e) => setGender(e.target.value)}>
+              <option value="" disabled>Select Gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </Select>
+          </FormRow>
+          <FormRow>
             <Input
               type="password"
               placeholder="Password"
@@ -168,11 +190,10 @@ export function Signup() {
             />
             <Input
               onChange={(e) => setConfirmPassword(e.target.value)}
-              type="text"
+              type="password"
               placeholder="Confirm Password"
             />
           </FormRow>
-          {/* <hr></hr> */}
           <label>Additional Information</label>
           <FormRow>
             <Input
@@ -200,10 +221,9 @@ export function Signup() {
     </>
   );
 }
-// background: linear-gradient(50deg, #d6249f, #285aeb);
+
 const Container = styled.div`
- 
-  height: 100vh;
+  height: 120vh;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -246,6 +266,39 @@ const Form = styled.form`
   }
 `;
 
+const ProfilePhotoSection = styled.div`
+  text-align: center;
+  margin-bottom: 20px;
+`;
+
+const ProfilePhotoContainer = styled.div`
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  cursor: pointer;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  span {
+    font-size: 12px;
+    color: #666;
+  }
+`;
+
+const ProfilePhotoInput = styled.input`
+  display: none;
+`;
+
 const FormRow = styled.div`
   display: flex;
   justify-content: space-between;
@@ -257,6 +310,19 @@ const FormRow = styled.div`
 `;
 
 const Input = styled.input`
+  border: 1px solid #757676;
+  border-radius: 5px;
+  height: 35px;
+  padding: 0 10px;
+  width: 100%;
+  outline: 0;
+
+  &:focus {
+    border: 2px solid rgba(65, 105, 225, 0.7);
+  }
+`;
+
+const Select = styled.select`
   border: 1px solid #757676;
   border-radius: 5px;
   height: 35px;
