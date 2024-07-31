@@ -13,6 +13,7 @@ export const messages = {
   valid: (data) => `${data} is valid`,
   inValid: (data) => `${data} is Invalid`,
   alreadyExist: (data) => `${data} already exist`,
+  showSuccess: "User added successfully",
   internalServerError: "Internal Server Error",
   dataNotFound: "No data found",
   errorMessage: "Something Went Wrong, Please Try Again.",
@@ -40,7 +41,9 @@ export const messages = {
   invalidToken: "Invalid Token",
   existAlready: "Already exist",
   refundSuccess: "Refund successfull",
-  emailSent: "Email sent successfully"
+  emailSent: "Email sent successfully",
+  lockUser:"User is locked",
+  otpverifyfailed : "OTP verification failed",
 };
 
 export const responseStatus = {
