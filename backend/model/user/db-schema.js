@@ -4,28 +4,16 @@
  * @author: Dinesh Kumar
  */
 
-import mongoose from 'mongoose';;
+import mongoose from 'mongoose';
 
-const UserSchema = new mongoose.Schema(
+const userSchema = new mongoose.Schema(
   {
-    firstName: {
+    name: {
       type: String,
       required: true,
-    },
-    lastName: {
-      type: String,
-      required: true,
-    },
-    middleName: {
-      type: String,
-      default: "",
     },
     email: {
       type: String,
-    },
-    userType: {
-      type: String,
-      default: "user",
     },
     phoneNumber: {
       type: Number,
@@ -42,21 +30,13 @@ const UserSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
-    loginToken: {
-      type: String,
-      default: null,
-    },
-    lastloginAt: {
-      type: String,
-      default: "",
-    },
     profilePic: {
       type: String,
       default: "",
     },
     isActive: {
       type: Boolean,
-      default: false,
+      default: true,
     },
     isDeleted: {
       type: Boolean,
@@ -66,55 +46,35 @@ const UserSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    isApproved: {
-      type: Boolean,
-      default: false,
-    },
-    isFirstLogin: {  //It will become false once user complete his basic information in first login
-      type: Boolean,
-      default: true,
-    },
-    termsCondition: {
-      type: Boolean,
-      default: false,
-    },
     dob: {
       type: Date,
       default: null,
     },
     address: {
-      type: String,
-      default: null,
-    },
-    city: {
-      type: String,
-      default: null,
-    },
-    state: {
-      type: String,
-      default: null,
-    },
-    zipCode: {
-      type: String,
-      default: null,
-    },
-    fcmToken: {
-      type: String,
-    },
-    customerId: {
-      type: String,
+      type: Object,
       default: null,
     },
     role: {
-      type: mongoose.Types.ObjectId,
-      ref: "rolesAndPermissions",
+      type:String,
+      // type: mongoose.Types.ObjectId,
+      enum:["0","1","2"],   // 0-Superadmin,1-community-head,2-user
+      ref: "rolesAndPermissions"
+    },
+    otp:{
+      type: Number,
+      require: false
+    },
+    otpExpiresIn :{
+      type: Date,
+      require: false
     },
   },
   {
     versionKey: false,
-    // Make Mongoose use Unix time (seconds since Jan 1, 1970)
     timestamps: { currentTime: () => Date.now() },
   }
 );
 
-export default UserSchema;
+const User = mongoose.model('User', userSchema);
+
+export default User;
