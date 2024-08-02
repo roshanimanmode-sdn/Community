@@ -1,68 +1,42 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { Formik, Form, Field, ErrorMessage } from 'formik';
 import styled from "styled-components";
 import ConfirmPost from '../Form/confirmPost';
-import { registerAPI } from '../../Services/Auth.service';
+import { registerAPI, updateVisiblityStatus } from '../../Services/Auth.service';
+import { initialValues, validationSchema } from '../../Constant/formikFiles';
+import { toast } from 'react-toastify';
 
 export function Signup() {
-  const dispatch = useDispatch();
+  const [openModal, setOpenModal] = useState(false);
+  const [userId, setUserId] = useState("");
+
   const navigate = useNavigate();
 
-  const [fullName, setFullName] = useState("");
-  const [userName, setUserName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [community, setCommunity] = useState("");
-  const [phone, setPhone] = useState("");
-  const [country, setCountry] = useState("");
-  const [state, setState] = useState("");
-  const [city, setCity] = useState("");
-  const [zipcode, setZipcode] = useState("");
-  const [age, setAge] = useState("");
-  const [dob, setDob] = useState("");
-  const [qualification, setQualification] = useState("");
-  const [gender, setGender] = useState("");
-  const [profilePhoto, setProfilePhoto] = useState(null);
-  const [openModal, setOpenModal] = useState(false);
-
-  const handleSignUp = async (e) => {
-    e.preventDefault();
-
-    const userData = {
-      fullName,
-      userName,
-      email,
-      password,
-      confirmPassword,
-      community,
-      phone,
-      country,
-      state,
-      city,
-      zipcode,
-      age,
-      dob,
-      qualification,
-      gender,
-      profilePhoto
-    };
-
+  const handleSignUp = async (values, { setSubmitting }) => {
     try {
-      const addUser = await registerAPI(userData);
-      console.log("add user--",addUser);
-      if(addUser){
+      const addUser = await registerAPI(values);
+      if (addUser) {
+        setUserId(addUser?.data?._id);
         setOpenModal(true);
       }
     } catch (error) {
       console.error('Registration failed:', error);
+      toast.error("Registration failed")
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  const handleConfirmVisibility = () => {
-    setOpenModal(false);
-    navigate('/home');
+  const handleConfirmVisibility = async (isProfileVisible) => {
+    if (isProfileVisible) {
+      const updateStatus = await updateVisiblityStatus({ userId: userId, isProfileVisible: isProfileVisible });
+      if (updateStatus) {
+        setOpenModal(false);
+        toast.success(updateStatus?.message);
+        navigate('/home');
+      }
+    }
   };
 
   const handleCloseModal = () => {
@@ -70,160 +44,130 @@ export function Signup() {
     navigate('/home');
   };
 
-  const handleProfilePhotoChange = (e) => {
-    if (e.target.files[0]) {
-      setProfilePhoto(URL.createObjectURL(e.target.files[0]));
-    }
-  };
-
   return (
-    <>
-      <Container>
-        {openModal && (
-          <ConfirmPost
-            isOpen={openModal}
-            onConfirm={handleConfirmVisibility}
-            onClose={handleCloseModal}
-          />
+    <Container>
+      {openModal && (
+        <ConfirmPost
+          isOpen={openModal}
+          onConfirm={handleConfirmVisibility}
+          onClose={handleCloseModal}
+        />
+      )}
+      <Formik
+        initialValues={initialValues}
+        validationSchema={validationSchema}
+        onSubmit={handleSignUp}
+      >
+        {({ setFieldValue, values, isSubmitting }) => (
+          <Form>
+            <Header><h1><i>Register</i></h1></Header>
+            <ProfilePhotoSection>
+              <ProfilePhotoContainer onClick={() => document.getElementById('profilePhoto').click()}>
+                {values.profilePhoto ? <img src={values.profilePhoto} alt="Profile" /> : <span>Upload Profile Photo</span>}
+              </ProfilePhotoContainer>
+              <ProfilePhotoInput
+                type="file"
+                id="profilePhoto"
+                accept="image/*"
+                onChange={(e) => {
+                  if (e.target.files[0]) {
+                    setFieldValue("profilePhoto", URL.createObjectURL(e.target.files[0]));
+                  }
+                }}
+                style={{ display: 'none' }}
+              />
+            </ProfilePhotoSection>
+            <ErrorText><ErrorMessage name="profilePhoto" /></ErrorText>
+
+            <label>Basic Information</label>
+            <FormRow>
+              <Field name="fullName" as={Input} placeholder="Full Name" />
+              <Field name="userName" as={Input} placeholder="Username" />
+            </FormRow>
+            <FormRow>
+              <ErrorText><ErrorMessage name="fullName" /></ErrorText>
+              <ErrorText><ErrorMessage name="userName" /></ErrorText>
+            </FormRow>
+
+            <FormRow>
+              <Field name="phone" as={Input} placeholder="Phone No." />
+              <Field name="email" as={Input} placeholder="Email" />
+            </FormRow>
+            <FormRow>
+              <ErrorText><ErrorMessage name="phone" /></ErrorText>
+              <ErrorText><ErrorMessage name="email" /></ErrorText>
+            </FormRow>
+
+            <FormRow>
+              <Field name="country" as={Input} placeholder="Country" />
+              <Field name="state" as={Input} placeholder="State" />
+            </FormRow>
+            <FormRow>
+              <ErrorText><ErrorMessage name="country" /></ErrorText>
+              <ErrorText><ErrorMessage name="state" /></ErrorText>
+            </FormRow>
+
+            <FormRow>
+              <Field name="city" as={Input} placeholder="City" />
+              <Field name="zipcode" as={Input} placeholder="Zipcode" />
+            </FormRow>
+            <FormRow>
+              <ErrorText><ErrorMessage name="city" /></ErrorText>
+              <ErrorText><ErrorMessage name="zipcode" /></ErrorText>
+            </FormRow>
+
+            <FormRow>
+              <Field name="age" as={Input} type="number" placeholder="Age" min="0" />
+              <Field name="dob" as={Input} placeholder="DOB" />
+            </FormRow>
+            <FormRow>
+              <ErrorText><ErrorMessage name="age" /></ErrorText>
+              <ErrorText><ErrorMessage name="dob" /></ErrorText>
+            </FormRow>
+
+            <FormRow>
+              <Field as={Select} name="gender">
+                <option value="" label="Select Gender" />
+                <option value="Male" label="Male" />
+                <option value="Female" label="Female" />
+                <option value="Other" label="Other" />
+              </Field>
+            </FormRow>
+            <ErrorText><ErrorMessage name="gender" /></ErrorText>
+
+            <FormRow>
+              <Field name="password" as={Input} type="password" placeholder="Password" />
+              <Field name="confirmPassword" as={Input} type="password" placeholder="Confirm Password" />
+            </FormRow>
+            <FormRow>
+              <ErrorText><ErrorMessage name="password" /></ErrorText>
+              <ErrorText><ErrorMessage name="confirmPassword" /></ErrorText>
+            </FormRow>
+
+            <label>Additional Information</label>
+            <FormRow>
+              <Field name="qualification" as={Input} placeholder="Qualification" />
+              <Field name="community" as={Input} placeholder="Community" />
+            </FormRow>
+            <FormRow>
+              <ErrorText><ErrorMessage name="qualification" /></ErrorText>
+              <ErrorText><ErrorMessage name="community" /></ErrorText>
+            </FormRow>
+
+            <StyledButton type="submit" disabled={isSubmitting}>Sign up</StyledButton>
+            <Footer>
+              <p>Already have an account?</p>
+              <StyledLink to={"/"}>Login</StyledLink>
+            </Footer>
+          </Form>
         )}
-        <Form onSubmit={handleSignUp}>
-          <header className='heading mt-4'><h1><i>Register</i></h1></header>
-          
-          <ProfilePhotoSection>
-            <ProfilePhotoContainer onClick={() => document.getElementById('profilePhoto').click()}>
-              {profilePhoto ? <img src={profilePhoto} alt="Profile" /> : <span>Upload Profile Photo</span>}
-            </ProfilePhotoContainer>
-            <ProfilePhotoInput
-              type="file"
-              id="profilePhoto"
-              accept="image/*"
-              onChange={handleProfilePhotoChange}
-              style={{ display: 'none' }}
-            />
-          </ProfilePhotoSection>
-
-          <label>Basic Information</label>
-          <FormRow>
-            <Input
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              type="text"
-              placeholder="Full Name"
-            />
-            <Input
-              value={userName}
-              onChange={(e) => setUserName(e.target.value)}
-              type="text"
-              placeholder="Username"
-            />
-          </FormRow>
-          <FormRow>
-            <Input
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              type="text"
-              placeholder="Phone No."
-            />
-            <Input
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              type="text"
-              placeholder="Email"
-            />
-          </FormRow>
-          <FormRow>
-            <Input
-              value={country}
-              onChange={(e) => setCountry(e.target.value)}
-              type="text"
-              placeholder="Country"
-            />
-            <Input
-              value={state}
-              onChange={(e) => setState(e.target.value)}
-              type="text"
-              placeholder="State"
-            />
-          </FormRow>
-          <FormRow>
-            <Input
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
-              type="text"
-              placeholder="City"
-            />
-            <Input
-              value={zipcode}
-              onChange={(e) => setZipcode(e.target.value)}
-              type="text"
-              placeholder="Zipcode"
-            />
-          </FormRow>
-          <FormRow>
-            <Input
-              value={age}
-              onChange={(e) => setAge(e.target.value)}
-              type="number"
-              placeholder="Age"
-              min="0"
-            />
-            <Input
-              value={dob}
-              onChange={(e) => setDob(e.target.value)}
-              type="text"
-              placeholder="DOB"
-            />
-          </FormRow>
-          <FormRow>
-            <Select value={gender} onChange={(e) => setGender(e.target.value)}>
-              <option value="" disabled>Select Gender</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-              <option value="Other">Other</option>
-            </Select>
-          </FormRow>
-          <FormRow>
-            <Input
-              type="password"
-              placeholder="Password"
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <Input
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              type="password"
-              placeholder="Confirm Password"
-            />
-          </FormRow>
-          <label>Additional Information</label>
-          <FormRow>
-            <Input
-              value={qualification}
-              onChange={(e) => setQualification(e.target.value)}
-              type="text"
-              placeholder="Qualification"
-            />
-            <Input
-              value={community}
-              onChange={(e) => setCommunity(e.target.value)}
-              type="text"
-              placeholder="Community"
-            />
-          </FormRow>
-
-          <StyledButton type="submit">Sign up</StyledButton>
-          <Footer>
-            <p>Already have an account?</p>
-            <StyledLink to={"/"}>Login</StyledLink>
-          </Footer>
-        </Form>
-        <div className="warning">Username already exists!</div>
-      </Container>
-    </>
+      </Formik>
+    </Container>
   );
 }
 
 const Container = styled.div`
-  height: 120vh;
+  height: 160vh;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -248,21 +192,6 @@ const Container = styled.div`
   .warning.active {
     bottom: 60px;
     opacity: 1;
-  }
-`;
-
-const Form = styled.form`
-  display: flex;
-  flex-direction: column;
-  background: white;
-  border-radius: 10px;
-  padding: 20px;
-  width: 500px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-
-  .heading {
-    text-align: center;
-    margin-bottom: 20px;
   }
 `;
 
@@ -297,6 +226,17 @@ const ProfilePhotoContainer = styled.div`
 
 const ProfilePhotoInput = styled.input`
   display: none;
+`;
+
+const Header = styled.header`
+  text-align: center;
+  margin-bottom: 20px;
+
+  h1 {
+    margin: 0;
+    font-size: 24px;
+    color: #333;
+  }
 `;
 
 const FormRow = styled.div`
@@ -374,4 +314,10 @@ const StyledLink = styled(Link)`
   &:hover {
     text-decoration: underline;
   }
+`;
+
+const ErrorText = styled.div`
+  color: tomato;
+  font-size: 12px;
+  margin-top: 5px;
 `;

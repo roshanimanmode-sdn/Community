@@ -2,7 +2,6 @@ import React from 'react';
 import styled from 'styled-components';
 
 export default function ConfirmPost({ isOpen, onClose, onConfirm }) {
-
     if (!isOpen) return null;
 
     return (
@@ -13,7 +12,7 @@ export default function ConfirmPost({ isOpen, onClose, onConfirm }) {
                     <p>Do you want to make your profile visible to everyone?</p>
                 </Body>
                 <Footer>
-                    <Button onClick={onConfirm} primary>Yes</Button>
+                    <Button onClick={() => onConfirm(true)} primary>Yes</Button>
                     <Button onClick={onClose}>No</Button>
                 </Footer>
             </Modal>

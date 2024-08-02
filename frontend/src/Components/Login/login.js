@@ -1,13 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { login } from '../../Services/service';
+import React, { useState } from 'react';
 import { userlogin } from '../../Slice/AuthSlice';
 import { Link, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import styled from "styled-components";
-import { handleLogin } from "../../Slice/PostData";
-import { getUserData } from "../../Slice/ProfileData";
+import { loginAPI } from '../../Services/Auth.service';
 import './login.css';
 
 export default function Login() {
@@ -16,19 +14,27 @@ export default function Login() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
-  const runLogin = (e) => {
-    e.preventDefault();
+  const runLogin = async (event) => {
+    event.preventDefault();
     try {
-      // const response = await registerAPI(userData);
-      // console.log('User registered successfully:', response);
-      // if(response?.status) {
-      navigate("/home");
-      // dispatch(handleLogin([email, userName]));
-      // dispatch(getUserData([userID, userName]));
-      // }
+      let userData = {
+        email: email,
+        password: password
+      };
+      const response = await loginAPI(userData);
+      if (response?.status) {
+        navigate("/home");
+        dispatch(userlogin(response?.data));
+        toast.success(response?.message);
+      } else {
+        setError("Username does not exist!");
+        toast.error("Login failed, please check your credentials.");
+      }
     } catch (error) {
-      console.error('Registration failed:', error);
+      console.log('Login failed:', error);
+      setError("Invalid credentials.");
     }
   };
 
@@ -36,7 +42,9 @@ export default function Login() {
     <>
       <Container>
         <Form onSubmit={runLogin}>
-          <header className='heading mt-4'><h1><i>Login</i></h1></header>
+          <Header className='heading mt-4'>
+            <h1><i>Login</i></h1>
+          </Header>
           <Input
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -44,17 +52,18 @@ export default function Login() {
             placeholder="Email"
           />
           <Input
+            value={password}
             type="password"
             placeholder="Password"
             onChange={(e) => setPassword(e.target.value)}
           />
+          {error && <Warning>{error}</Warning>}
           <StyledButton type="submit">Log in</StyledButton>
           <Footer>
             <p>Don't have an account?</p>
             <StyledLink to={"/register"}>Register</StyledLink>
           </Footer>
         </Form>
-        <div className="warning">Username does not exist!</div>
       </Container>
     </>
   );
@@ -87,6 +96,16 @@ const Container = styled.div`
     bottom: 60px;
     opacity: 1;
   }
+`;
+
+const Header = styled.header`
+  text-align: center;
+  margin-bottom: 20px;
+`;
+
+const Warning = styled.div`
+  color: red;
+  margin-top: 10px;
 `;
 
 const Form = styled.form`

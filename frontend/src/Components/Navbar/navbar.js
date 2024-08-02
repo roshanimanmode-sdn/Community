@@ -6,86 +6,93 @@ import ChatBubbleOutlineOutlinedIcon from "@material-ui/icons/ChatBubbleOutlineO
 import FavoriteIcon from "@material-ui/icons/Favorite";
 import { Link, useNavigate } from "react-router-dom";
 import { useRef } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import userIcon from "../../assets/img/default_image.png"
+import { userlogout } from '../../Slice/AuthSlice';
 
 export default function Navbar() {
-    const navigate = useNavigate();
-    const searchValue = useRef("");
-    const [openProfile, setOpenProfile] = useState(false)
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const searchValue = useRef("");
+  const [openProfile, setOpenProfile] = useState(false)
 
-    // Selecting Current user
-    const usersData = useSelector((state) => state.profileData);
-    const userNames = Object.keys(usersData);
-    const currentUser = usersData[userNames[userNames.length - 1]];
+  // Selecting Current user
+  const usersData = useSelector((state) => state.profileData);
+  const userNames = Object.keys(usersData);
+  const currentUser = usersData[userNames[userNames.length - 1]];
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        const input = searchValue.current.value;
-        if (!input) return;
-        navigate(`/profile/${input}`);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const input = searchValue.current.value;
+    if (!input) return;
+    navigate(`/profile/${input}`);
 
-    };
+  };
 
-    const handleLogout = () => {
-      navigate("/")
-    };
+  const handleLogout = () => {
+    localStorage.removeItem("users");
+    localStorage.removeItem("token");
+    localStorage.clear();
+    dispatch(userlogout());
+    navigate("/");
 
-    const handleProfile = () => {
-      setOpenProfile(true);
-    };
+  };
 
-    const likeBtn = (event) => {
-        let color = event.target.style.color;
+  const handleProfile = () => {
+    setOpenProfile(true);
+  };
 
-        if (color === "tomato") {
-            color = "black";
-        } else {
-            color = "tomato";
-        }
-        event.target.style.color = color;
-    };
+  const likeBtn = (event) => {
+    let color = event.target.style.color;
 
-    return (
-        <>
-            <NavBar>
-                <div id="nav-items">
-                    <Link to="/home" style={{textDecoration: "none"}}>
-                        <header className='heading mt-4'><h1 style={{fontFamily: 'Pacifico, cursive', fontSize: "2.5rem", color: "#000"}}><i>Community Channel</i></h1></header>
-                    </Link>
-                    <div className="inputField">
-                        <SearchIcon style={{ color: "gray", fontSize: 20 }} />
-                        <form onSubmit={handleSubmit}>
-                            <input type="text" placeholder="Search" ref={searchValue} />
-                        </form>
-                    </div>
-                    <div className="otherIcons">
-                        <div className="home">
-                            <Link to="/home">
-                                <HomeIcon />
-                            </Link>
-                        </div>
-                        <div className="chat">
-                            <Link to="/contact">
-                                <ChatBubbleOutlineOutlinedIcon />
-                            </Link>
-                        </div>
-                        <div className="heart">
-                            <FavoriteIcon onClick={likeBtn} />
-                        </div>
-                        <div className="logout">
-                            <img
-                                src={userIcon}
-                                alt="profile-pic"
-                                onClick={handleProfile}
-                            />
-                        </div>
-                        <div className="" onClick={handleLogout} style={{cursor: "pointer", paddingLeft: "10px"}}>Logout</div>
-                    </div>
-                </div>
-            </NavBar>
-        </>
-    )
+    if (color === "tomato") {
+      color = "black";
+    } else {
+      color = "tomato";
+    }
+    event.target.style.color = color;
+  };
+
+  return (
+    <>
+      <NavBar>
+        <div id="nav-items">
+          <Link to="/home" style={{ textDecoration: "none" }}>
+            <header className='heading mt-4'><h1 style={{ fontFamily: 'Pacifico, cursive', fontSize: "2.5rem", color: "#000" }}><i>Community Channel</i></h1></header>
+          </Link>
+          <div className="inputField">
+            <SearchIcon style={{ color: "gray", fontSize: 20 }} />
+            <form onSubmit={handleSubmit}>
+              <input type="text" placeholder="Search" ref={searchValue} />
+            </form>
+          </div>
+          <div className="otherIcons">
+            <div className="home">
+              <Link to="/home">
+                <HomeIcon />
+              </Link>
+            </div>
+            <div className="chat">
+              <Link to="/contact">
+                <ChatBubbleOutlineOutlinedIcon />
+              </Link>
+            </div>
+            <div className="heart">
+              <FavoriteIcon onClick={likeBtn} />
+            </div>
+            <div className="logout">
+              <img
+                src={userIcon}
+                alt="profile-pic"
+                onClick={handleProfile}
+              />
+            </div>
+            <div className="" onClick={handleLogout} style={{ cursor: "pointer", paddingLeft: "10px" }}>Logout</div>
+          </div>
+        </div>
+      </NavBar>
+    </>
+  )
 }
 
 const NavBar = styled.nav`

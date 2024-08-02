@@ -58,7 +58,6 @@ export const login = async (req, res) => {
       });
     }
     if (!user.isActive) {
-      // await user.save();
       return res.status(responseCodes.failureCode).json({
         status: responseStatus.failedStatus,
         statusCode: responseCodes.failureCode,
@@ -67,13 +66,12 @@ export const login = async (req, res) => {
     }
     const isPasswordCorrect = await bcrypt.compare(password, user?.password);
     if (isPasswordCorrect) {
-      const token = jwt.sign({ _id: user?._id, email: user?.email, role: user?.role }, process.env.JWT_KEY,
+      const token = jwt.sign({ _id: user?._id, email: user?.email, role: user?.role }, process.env.JWT_SECRET_KEY,
         {
           expiresIn: "24h"
         }
       );
       user.password = undefined;
-      console.log("token", token)
       // const encryptedResponse = await encryptData(JSON.stringify({
       //   accessToken: token,
       //   ...httpResponse.data.data
@@ -82,6 +80,7 @@ export const login = async (req, res) => {
         status: responseStatus.successStatus,
         statusCode: responseCodes.successCode,
         message: messages.loginSuccess,
+        data: user,
         token: token
       });
     } else {
@@ -255,6 +254,7 @@ export const updateProfile = async (req, res) => {
 export const setProfileVisible = async (req, res) => {
   try {
     const { userId, isProfileVisible } = req.body;
+    console.log("req.body--",req.body);
     let user = await User.findOne({ _id: mongoose.Types.ObjectId(userId) });
     if (!user) {
       return res.status(responseCodes.failureCode).json({
@@ -279,6 +279,35 @@ export const setProfileVisible = async (req, res) => {
         });
       }
     }
+  } catch (error) {
+    console.log("error :------", error);
+    return res.status(responseCodes.internalServerError).json({
+      status: responseStatus.failedStatus,
+      statusCode: responseCodes.internalServerError,
+      message: messages.internalServerError,
+    });
+  }
+};
+
+// Get User Details
+export const getUserDetails = async (req, res) => {
+  try {
+    console.log("req.user",req.user);
+    const user = await User.findOne({ _id: mongoose.Types.ObjectId(req.user._id) });
+    if (!user) {
+      return res.status(responseCodes.failureCode).json({
+        status: responseStatus.failedStatus,
+        statusCode: responseCodes.failureCode,
+        message: messages.NotFound,
+      });
+    } else {
+        return res.status(responseCodes.successCode).json({
+          status: responseStatus.successStatus,
+          statusCode: responseCodes.successCode,
+          message: messages.showSuccess,
+          data: user
+        });
+      }
   } catch (error) {
     console.log("error :------", error);
     return res.status(responseCodes.internalServerError).json({
