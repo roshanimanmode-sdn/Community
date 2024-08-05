@@ -2,8 +2,11 @@ import React from 'react';
 import styled from "styled-components";
 import ProfileInfo from "./profileInfo";
 import ProfilePosts from "./profilePost";
+import { useSelector } from 'react-redux';
 
 export default function Profile(props) {
+    const postData = useSelector((state) => state.postData.data);
+    console.log("postData--",postData);
     
 
     return (

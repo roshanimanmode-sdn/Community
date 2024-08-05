@@ -1,13 +1,14 @@
 import axios from "axios";
 import { getInfo } from "./Auth.header";
+import { saveAllPost } from "../Slice/PostData";
 
 const TOKEN = getInfo();
 const apiUrl = 'http://localhost:8989/user';
 
 let axiosConfig = {
-    header: {
+    headers: {
         "Content-Type": "application/json",
-        Authorization: TOKEN,
+        Authorization: `Bearer ${TOKEN}`,
     },
 };
 
@@ -74,15 +75,31 @@ export const updateVisiblityStatus = async (data) => {
 // Function to fetch login user details
 export const fetchUserDetails = async () => {
     try {
-        console.log("axiosConfig--",axiosConfig);
-        const response = await axios.get(apiUrl + "/get-details", axiosConfig);
-        if (response.status) {
+        const response = await axios.get(`${apiUrl}/get-details`, axiosConfig);
+        
+        if (response.status === 200) {  // Checking if the response status is 200
             return response.data;
         } else {
             throw new Error(`Unexpected response status: ${response.status}`);
         }
     } catch (error) {
-        console.error('Error during registration:', error);
+        console.error('Error during fetching user details:', error);
+        throw error;
+    }
+};
+
+export const fetchAllUsers = async (dispatch) => {
+    try {
+        const response = await axios.get(`${apiUrl}/get-all`, axiosConfig);
+        
+        if (response.status === 200) {  // Checking if the response status is 200
+            dispatch(saveAllPost(response?.data))
+            return response.data;
+        } else {
+            throw new Error(`Unexpected response status: ${response.status}`);
+        }
+    } catch (error) {
+        console.error('Error during fetching user details:', error);
         throw error;
     }
 };

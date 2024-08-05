@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Navbar from "../Navbar/navbar";
@@ -6,40 +6,45 @@ import Stories from "../Stories/stories";
 import Post from "../Posts/posts";
 import Sidebar from "../SideBar/sideBar";
 import Form from "../Form/form";
-import { fetchUserDetails } from '../../Services/Auth.service';
+import { fetchUserDetails, fetchAllUsers } from '../../Services/Auth.service';
+import { useDispatch } from 'react-redux';
 
-export default function Home() {
+const Home = () => {
+  const dispatch = useDispatch();
+  const [allPosts, setAllPosts] = useState([]);
 
-    useEffect(() => {
-        fetchUserData();
-      }, []);
-    
-      const fetchUserData = async () => {
+  useEffect(() => {
+    const fetchAllUserData = async () => {
         try {
-          const getData = await fetchUserDetails();
-          if (getData.status) {
-            toast.success(getData?.message);
-          } else {
-            toast.error(getData.message);
-          }
+            const getData = await fetchAllUsers(dispatch);
+            if (getData?.status) {
+                setAllPosts(getData?.data);
+            } else {
+              console.log("Error:",getData?.message);
+              
+            }
         } catch (error) {
-          console.error('Failed to fetch user data:', error);
-          toast.error('An error occurred while fetching user data.');
+            console.error('Failed to fetch user data:', error);
         }
-      };
-    
-      return (
+    };
+
+    fetchAllUserData();
+}, []);
+
+    return (
         <>
-          <Navbar />
-          <div className="App">
-            <div className="section">
-              {/* <Stories /> */}
-              <Sidebar />
-              <Post />
-              <Form />
-              {/* <Footer /> */}
+            <Navbar />
+            <div className="App">
+                <div className="section">
+                    {/* <Stories /> */}
+                    <Sidebar />
+                    <Post allPosts={allPosts}/>
+                    <Form />
+                    {/* <Footer /> */}
+                </div>
             </div>
-          </div>
         </>
-      );
-    }
+    );
+};
+
+export default Home;

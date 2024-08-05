@@ -238,7 +238,48 @@ export const changePassword = async (req, res) => {
 // Edit user profile data
 export const updateProfile = async (req, res) => {
   try {
-    const { userId, firstName, lastName, middleName, email, password, phoneNumber, gender, age, profilePic, dob, address, role } = req.body;
+    const { userId, fullName, email, phoneNumber, gender, age, profilePic, dob, address, aboutYourself } = req.body;
+
+    // Validate user ID
+    if (!userId) {
+      return res.status(responseCodes.badRequest).json({
+        status: responseStatus.failedStatus,
+        statusCode: responseCodes.badRequest,
+        message: "User ID is required"
+      });
+    }
+
+    // Find the user by ID
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(responseCodes.notFound).json({
+        status: responseStatus.failedStatus,
+        statusCode: responseCodes.notFound,
+        message: messages.NotFound
+      });
+    }
+
+    // Update user fields
+    if (fullName !== undefined) user.fullName = fullName;
+    if (email !== undefined) user.email = email;
+    if (phoneNumber !== undefined) user.phoneNumber = phoneNumber;
+    if (gender !== undefined) user.gender = gender;
+    if (age !== undefined) user.age = age;
+    if (profilePic !== undefined) user.profilePic = profilePic;
+    if (dob !== undefined) user.dob = dob;
+    if (address !== undefined) user.address = address;
+    if (aboutYourself !== undefined) user.aboutYourself = aboutYourself;
+
+    // Save the updated user
+    await user.save();
+
+    // Respond with success
+    return res.status(responseCodes.ok).json({
+      status: responseStatus.successStatus,
+      statusCode: responseCodes.ok,
+      message: "Profile updated successfully",
+      data: user
+    });
 
   } catch (error) {
     console.log("error :------", error);
@@ -248,7 +289,7 @@ export const updateProfile = async (req, res) => {
       message: messages.internalServerError
     });
   }
-}
+};
 
 // Make profile visible to everyone.
 export const setProfileVisible = async (req, res) => {
@@ -289,10 +330,9 @@ export const setProfileVisible = async (req, res) => {
   }
 };
 
-// Get User Details
+// Get login User Details
 export const getUserDetails = async (req, res) => {
   try {
-    console.log("req.user",req.user);
     const user = await User.findOne({ _id: mongoose.Types.ObjectId(req.user._id) });
     if (!user) {
       return res.status(responseCodes.failureCode).json({
@@ -304,7 +344,35 @@ export const getUserDetails = async (req, res) => {
         return res.status(responseCodes.successCode).json({
           status: responseStatus.successStatus,
           statusCode: responseCodes.successCode,
-          message: messages.showSuccess,
+          message: messages.listSuccess,
+          data: user
+        });
+      }
+  } catch (error) {
+    console.log("error :------", error);
+    return res.status(responseCodes.internalServerError).json({
+      status: responseStatus.failedStatus,
+      statusCode: responseCodes.internalServerError,
+      message: messages.internalServerError,
+    });
+  }
+};
+
+// Get all Users Data
+export const getAllUsers = async (req, res) => {
+  try {
+    const user = await User.find({ isProfileVisible: true, isActive: true });
+    if (!user) {
+      return res.status(responseCodes.failureCode).json({
+        status: responseStatus.failedStatus,
+        statusCode: responseCodes.failureCode,
+        message: messages.NotFound,
+      });
+    } else {
+        return res.status(responseCodes.successCode).json({
+          status: responseStatus.successStatus,
+          statusCode: responseCodes.successCode,
+          message: messages.listSuccess,
           data: user
         });
       }

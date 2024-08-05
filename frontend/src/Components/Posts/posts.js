@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from "styled-components";
 import { useSelector, useDispatch } from "react-redux";
 import handleEmoji from "../../Features/HandleEmoji";
-import { handleLike, likePost, postComment } from "../../Slice/PostData";
+import { handleLike, likePost, postComment, saveAllPost } from "../../Slice/PostData";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -21,33 +21,17 @@ import {
 } from "../../Features/PostActionMethods";
 import SideBar from '../SideBar/sideBar';
 
-export default function Posts(props) {
+export default function Posts({allPosts}) {
+    console.log("allPosts--",allPosts);
     const dispatch = useDispatch();
     // const allPosts = useSelector((state) => state.postData);
-    const allPosts = [
-      {
-        "profilePic": "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png",
-        "userID": "carryminati",
-        "location": "Delhi, India",
-        "postLink": "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png",
-        "likes": 9999,
-        "isLiked": false,
-        "caption": "If the mountains bow in reverence so will I ~ Hillsong",
-        "comments": [
-            [
-                "beerbiceps",
-                "🔥🔥"
-            ],
-            [
-                "rohitdhas_11",
-                "💖🔥"
-            ]
-        ],
-        "postID": 1,
-        "community": "Brahmin",
-        "qualification": "Engineer"
-    }
-    ]
+   
+    useEffect(() => {
+      if(allPosts) {
+        dispatch(saveAllPost(allPosts))
+      }
+    })
+
     const [comment, setComment] = useState("");
 
     const handleCommentPost = (event, id) => {
@@ -59,39 +43,39 @@ export default function Posts(props) {
     return (
         <>
             <Container>
-                {allPosts.length !== 0 ? (
+                {allPosts?.length !== 0 ? (
                     allPosts.map((postData) => {
                         return (
                             <UserPost
-                                key={postData.postID}
+                                key={postData._id}
                                 className={`post-${postData.postID}`}
                             >
                                 <UserInfo>
                                     <div className="post-info">
                                         <div className="icon">
-                                            <img src={postData.profilePic} alt="icon" />
+                                            <img src={postData?.profilePic ? postData?.profilePic : DefaultPic} alt="icon" />
                                         </div>
                                         <div className="id-location">
                                             <p className="user owner-id">
-                                                <Link to={`/profile/${postData.userID}`}>
-                                                    {postData.userID}
+                                                <Link to={`/profile/${postData?._id}`}>
+                                                    {postData?.fullName}
                                                 </Link>
                                             </p>
-                                            <p className="location">{postData.location}</p>
+                                            <p className="location">{postData?.address ? postData?.address : "Nagpur"}</p>
                                         </div>
                                     </div>
                                     <MoreHorizIcon />
                                 </UserInfo>
-                                <Media onDoubleClick={() => dispatch(likePost(postData.postID))}>
-                                    <FavoriteIcon className={"like-post-" + postData.postID} />
-                                    <img src={postData.postLink} alt="post" />
+                                <Media onDoubleClick={() => dispatch(likePost(postData?._id))}>
+                                    <FavoriteIcon className={"like-post-" + postData?._id} />
+                                    <img src={postData?.profilePic ? postData?.profilePic : DefaultPic} alt="post" />
                                 </Media>
                                 <PostInfo>
                                     <PostActionIcons>
                                         <div className="actions">
                                             <FavoriteIcon
-                                                className={`like-icon ${postData.isLiked ? "liked" : ""}`}
-                                                onClick={() => dispatch(handleLike(postData.postID))}
+                                                className={`like-icon ${postData?.isLiked ? "liked" : ""}`}
+                                                onClick={() => dispatch(handleLike(postData?._id))}
                                             />
                                             <ChatBubbleOutlineOutlinedIcon
                                                 onClick={() => focusOnComment(postData.postID)}
@@ -102,26 +86,28 @@ export default function Posts(props) {
                                             <BookmarkBorderIcon />
                                         </div>
                                     </PostActionIcons>
-                                    <Likes>{postData.likes} likes</Likes>
+                                    <Likes>{postData?.likes ? postData?.likes : 999} likes</Likes>
+                                    {/* About Yourself */}
                                     <Caption>
-                                        <div className={`content-${postData.postID} hideContent`}>
+                                        <div className={`content-${postData?._id} hideContent`}>
                                             <span className="user owner-id">
-                                                <Link to={`/profile/${postData.userID}`}>
-                                                    {postData.userID}
+                                                <Link to={`/profile/${postData?._id}`}>
+                                                    {postData?.fullName}
                                                 </Link>
                                             </span>
-                                            {postData.caption}
+                                            {postData?.aboutYourself ? postData?.aboutYourself : ""}
                                         </div>
                                         <span
-                                            onClick={(e) => handleShowMore(e, `${postData.postID}`)}
+                                            onClick={(e) => handleShowMore(e, `${postData?._id}`)}
                                             className="show-more"
                                         >
                                             <a href="#">...more</a>
                                         </span>
                                     </Caption>
+
                                     <Comments>
-                                        {postData.comments.length !== 0 ? (
-                                            postData.comments.map((comment) => {
+                                        {postData?.comments?.length !== 0 ? (
+                                            postData?.comments?.map((comment) => {
                                                 return (
                                                     <li key={comment[1]}>
                                                         <div>
@@ -143,6 +129,7 @@ export default function Posts(props) {
                                             <p className="empty-comment-box">No Comments Yet!</p>
                                         )}
                                     </Comments>
+
                                     <CommentInput>
                                         <SentimentSatisfiedOutlinedIcon
                                             onClick={(event) =>

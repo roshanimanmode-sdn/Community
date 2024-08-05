@@ -1,5 +1,5 @@
 import express from "express";
-import { changePassword, forgetPassword, login, register, resetPassword, setProfileVisible, getUserDetails } from "../controller/user/index.js";
+import { changePassword, forgetPassword, login, register, resetPassword, setProfileVisible, updateProfile, getUserDetails, getAllUsers } from "../controller/user/index.js";
 import tokenVerification from "../middleware/authorization.js";
 
 const usersRouter = express.Router();
@@ -12,6 +12,9 @@ usersRouter.put("/profile-visible", setProfileVisible);
 usersRouter.use(tokenVerification);
 usersRouter.put("/change-password", changePassword);
 usersRouter.get("/get-details", getUserDetails);
+usersRouter.get("/get-all", getAllUsers);
+usersRouter.put("/profile-update", updateProfile);
+
 
 
 

@@ -88,6 +88,14 @@ const userSchema = new mongoose.Schema(
       type: Date,
       require: false
     },
+    aboutYourself: {
+      type: String,
+      default: "",
+    },
+    comments: {
+      type: Array,
+      default: [],
+    },
   },
   {
     versionKey: false,

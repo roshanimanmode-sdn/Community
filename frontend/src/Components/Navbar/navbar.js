@@ -58,7 +58,7 @@ export default function Navbar() {
       <NavBar>
         <div id="nav-items">
           <Link to="/home" style={{ textDecoration: "none" }}>
-            <header className='heading mt-4'><h1 style={{ fontFamily: 'Pacifico, cursive', fontSize: "2.5rem", color: "#000" }}><i>Community Channel</i></h1></header>
+            <header className='heading mt-4'><h1 style={{ fontFamily: 'Pacifico, cursive', fontSize: "2.5rem", color: "#000" }}><i>Community</i></h1></header>
           </Link>
           <div className="inputField">
             <SearchIcon style={{ color: "gray", fontSize: 20 }} />
