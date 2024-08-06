@@ -52,10 +52,6 @@ export const postDataSlice = createSlice({
       // };
 
       // state.push(newPostData);
-    },
-    saveAllPost: (state, action) => {
-      console.log("action.payload", action.payload);
-      // state.data = action.payload;
     }
   }
 });
@@ -64,7 +60,6 @@ export const {
   likePost,
   handleLike,
   postComment,
-  sharePost,
-  saveAllPost
+  sharePost
 } = postDataSlice.actions;
 export default postDataSlice.reducer;

@@ -2,7 +2,8 @@ import React, { useEffect } from 'react';
 import styled from "styled-components";
 import { useSelector, useDispatch } from "react-redux";
 import handleEmoji from "../../Features/HandleEmoji";
-import { handleLike, likePost, postComment, saveAllPost } from "../../Slice/PostData";
+import { handleLike, likePost, postComment } from "../../Slice/PostData";
+import { saveAllPost } from "../../Slice/PostSlice";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -13,18 +14,14 @@ import TelegramIcon from "@material-ui/icons/Telegram";
 import BookmarkBorderIcon from "@material-ui/icons/BookmarkBorder";
 import SentimentSatisfiedOutlinedIcon from "@material-ui/icons/SentimentSatisfiedOutlined";
 import DefaultPic from "../../assets/img/default_image.png"
-
 import {
     focusOnComment,
     handleShowMore,
     handleCommentLike
 } from "../../Features/PostActionMethods";
-import SideBar from '../SideBar/sideBar';
 
 export default function Posts({allPosts}) {
-    console.log("allPosts--",allPosts);
     const dispatch = useDispatch();
-    // const allPosts = useSelector((state) => state.postData);
    
     useEffect(() => {
       if(allPosts) {

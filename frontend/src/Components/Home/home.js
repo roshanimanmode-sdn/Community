@@ -6,7 +6,7 @@ import Stories from "../Stories/stories";
 import Post from "../Posts/posts";
 import Sidebar from "../SideBar/sideBar";
 import Form from "../Form/form";
-import { fetchUserDetails, fetchAllUsers } from '../../Services/Auth.service';
+import { fetchAllUsers } from '../../Services/Auth.service';
 import { useDispatch } from 'react-redux';
 
 const Home = () => {

@@ -4,12 +4,14 @@ import storage from 'redux-persist/lib/storage';
 import authReducer from "../Slice/AuthSlice";
 import postDataReducer from "../Slice/PostData";
 import userProfileSlice from "../Slice/ProfileData";
+import postReducer from "../Slice/PostSlice";
 
 
 const reducerlist = combineReducers({
         auth : authReducer,
         postData: postDataReducer,
-        profileData: userProfileSlice
+        profileData: userProfileSlice,
+        postSlice: postReducer
        
     });
 const persistConfig ={

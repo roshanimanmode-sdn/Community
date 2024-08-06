@@ -1,7 +1,7 @@
 /*
  * @file: db-schema.js
  * @description: It contains db schema for admin, groupadmin and other admin users.
- * @author: Dinesh Kumar
+ * @author: Roshni Manmode
  */
 
 import mongoose from 'mongoose';
@@ -93,6 +93,10 @@ const userSchema = new mongoose.Schema(
       default: "",
     },
     comments: {
+      type: Array,
+      default: [],
+    },
+    archieves: {
       type: Array,
       default: [],
     },

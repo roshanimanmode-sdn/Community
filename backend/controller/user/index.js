@@ -238,8 +238,8 @@ export const changePassword = async (req, res) => {
 // Edit user profile data
 export const updateProfile = async (req, res) => {
   try {
-    const { userId, fullName, email, phoneNumber, gender, age, profilePic, dob, address, aboutYourself } = req.body;
-
+    const { fullName, email, phoneNumber, gender, age, profilePic, dob, address, aboutYourself } = req.body;
+    const userId = req.user._id;
     // Validate user ID
     if (!userId) {
       return res.status(responseCodes.badRequest).json({
@@ -274,9 +274,9 @@ export const updateProfile = async (req, res) => {
     await user.save();
 
     // Respond with success
-    return res.status(responseCodes.ok).json({
+    return res.status(responseCodes.successCode).json({
       status: responseStatus.successStatus,
-      statusCode: responseCodes.ok,
+      statusCode: responseCodes.successCode,
       message: "Profile updated successfully",
       data: user
     });
@@ -330,10 +330,10 @@ export const setProfileVisible = async (req, res) => {
   }
 };
 
-// Get login User Details
+// Get User Details by id
 export const getUserDetails = async (req, res) => {
   try {
-    const user = await User.findOne({ _id: mongoose.Types.ObjectId(req.user._id) });
+    const user = await User.findOne({ _id: mongoose.Types.ObjectId(req.query._id) });
     if (!user) {
       return res.status(responseCodes.failureCode).json({
         status: responseStatus.failedStatus,

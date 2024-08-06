@@ -1,6 +1,6 @@
 import axios from "axios";
 import { getInfo } from "./Auth.header";
-import { saveAllPost } from "../Slice/PostData";
+import { saveAllPost } from "../Slice/PostSlice";
 
 const TOKEN = getInfo();
 const apiUrl = 'http://localhost:8989/user';
@@ -72,10 +72,11 @@ export const updateVisiblityStatus = async (data) => {
     }
 };
 
-// Function to fetch login user details
-export const fetchUserDetails = async () => {
+// Function to fetch user details by id
+export const fetchUserDetailsById = async (id) => {
     try {
-        const response = await axios.get(`${apiUrl}/get-details`, axiosConfig);
+        const response = await axios.get(`${apiUrl}/get-details?_id=${id}`, axiosConfig);
+        console.log("response--",response);
         
         if (response.status === 200) {  // Checking if the response status is 200
             return response.data;
@@ -88,6 +89,7 @@ export const fetchUserDetails = async () => {
     }
 };
 
+// Function to get all users data
 export const fetchAllUsers = async (dispatch) => {
     try {
         const response = await axios.get(`${apiUrl}/get-all`, axiosConfig);
@@ -100,6 +102,25 @@ export const fetchAllUsers = async (dispatch) => {
         }
     } catch (error) {
         console.error('Error during fetching user details:', error);
+        throw error;
+    }
+};
+
+// Function to update users data
+export const updateUserDataAPI = async (data) => {
+    try {
+        if (!data) {
+            throw new Error('No data provided');
+        }
+
+        const response = await axios.put(`${apiUrl}/profile-update`, data, axiosConfig);
+        if (response.status) {
+            return response.data;
+        } else {
+            throw new Error(`Unexpected response status: ${response.status}`);
+        }
+    } catch (error) {
+        console.error('Error during login:', error);
         throw error;
     }
 };
