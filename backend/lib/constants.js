@@ -44,6 +44,7 @@ export const messages = {
   emailSent: "Email sent successfully",
   lockUser:"User is locked",
   otpverifyfailed : "OTP verification failed",
+  archieveSuccess: "User Archieved",
 };
 
 export const responseStatus = {

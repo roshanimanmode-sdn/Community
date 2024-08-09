@@ -10,12 +10,12 @@ const userSchema = new mongoose.Schema(
   {
     fullName: {
       type: String,
-      required: true,
+      required: false,
     },
     // it should be unique for all users
     userName: {
       type: String,
-      required: true,
+      required: false,
       unique: true
     },
     email: {
@@ -26,7 +26,7 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: true,
+      required: false,
     },
     gender: {
       type: String,

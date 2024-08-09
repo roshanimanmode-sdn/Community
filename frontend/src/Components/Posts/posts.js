@@ -19,15 +19,38 @@ import {
     handleShowMore,
     handleCommentLike
 } from "../../Features/PostActionMethods";
+import { fetchAllUsers } from '../../Services/Auth.service';
+import archieveIcon from "../../assets/sidebar/archieve.svg";
+import { archieveUserAPI } from '../../Services/Archieve.service';
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-export default function Posts({allPosts}) {
+export default function Posts() {
     const dispatch = useDispatch();
-   
+    const user = useSelector((state) => state);
+    // console.log("user--",user);
+    
+    const [allPosts, setAllPosts] = useState([]);
+    const [archeive, setArchieve] = useState(false);
+
     useEffect(() => {
-      if(allPosts) {
-        dispatch(saveAllPost(allPosts))
-      }
-    })
+      const fetchAllUserData = async () => {
+          try {
+              const getData = await fetchAllUsers(dispatch);
+              if (getData?.status) {
+                  setAllPosts(getData?.data);
+                  // console.log("allPosts",getData?.data);
+              } else {
+                console.log("Error:",getData?.message);
+                
+              }
+          } catch (error) {
+              console.error('Failed to fetch user data:', error);
+          }
+      };
+  
+      fetchAllUserData();
+  }, []);
 
     const [comment, setComment] = useState("");
 
@@ -36,6 +59,17 @@ export default function Posts({allPosts}) {
         dispatch(postComment([comment, id]));
         setComment("");
     };
+
+    const handleArchieve = async(userId) => {
+      setArchieve(!archeive);
+      if(archeive) {
+        const response = await archieveUserAPI({userId: userId});
+        console.log("archieve user res--",response);
+        if(response?.status) {
+          toast.success(response?.message);
+        }
+      }
+    }
 
     return (
         <>
@@ -79,8 +113,8 @@ export default function Posts({allPosts}) {
                                             />
                                             <TelegramIcon />
                                         </div>
-                                        <div className="save">
-                                            <BookmarkBorderIcon />
+                                        <div className="save" onClick={() => handleArchieve(postData._id)}>
+                                            {archeive ? <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0z" fill="none"/><path d="M17 3H7c-1.1 0-1.99.9-1.99 2L5 21l7-3 7 3V5c0-1.1-.9-2-2-2zm0 15l-5-2.18L7 18V5h10v13z"/></svg> : <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0z" fill="none"/><path d="M17 3H7c-1.1 0-1.99.9-1.99 2L5 21l7-3 7 3V5c0-1.1-.9-2-2-2z"/></svg>}
                                         </div>
                                     </PostActionIcons>
                                     <Likes>{postData?.likes ? postData?.likes : 999} likes</Likes>

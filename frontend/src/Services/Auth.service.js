@@ -75,9 +75,7 @@ export const updateVisiblityStatus = async (data) => {
 // Function to fetch user details by id
 export const fetchUserDetailsById = async (id) => {
     try {
-        const response = await axios.get(`${apiUrl}/get-details?_id=${id}`, axiosConfig);
-        console.log("response--",response);
-        
+        const response = await axios.get(`${apiUrl}/get-details?_id=${id}`, axiosConfig);        
         if (response.status === 200) {  // Checking if the response status is 200
             return response.data;
         } else {

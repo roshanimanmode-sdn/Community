@@ -1,22 +1,33 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
-import { useSelector } from "react-redux";
 import CheckCircleIcon from "@material-ui/icons/CheckCircle";
 import { Button, Col, Row } from 'reactstrap';
 import userIcon from "../../assets/img/default_image.png"
-import { updateUserDataAPI } from '../../Services/Auth.service';
+import { fetchUserDetailsById, updateUserDataAPI } from '../../Services/Auth.service';
 
 export default function ProfileInfo(props) {
   const { id } = useParams();
-  const postData = useSelector((state) => state.postSlice.data);
-  const userProfile = postData.find((profile) => profile._id === id);
-  console.log("userProfile--",userProfile);
-  
   const [isEditing, setIsEditing] = useState(false);
-  const [profileData, setProfileData] = useState(userProfile);
-  const [profilePic, setProfilePic] = useState(userProfile?.profilePic ? userProfile?.profilePic : userIcon);
-  const [newProfilePic, setNewProfilePic] = useState(null);
+  const [profileData, setProfileData] = useState();
+  const [profilePic, setProfilePic] = useState(userIcon);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const getData = await fetchUserDetailsById(id);
+        if (getData?.status) {
+          setProfileData(getData?.data);
+        } else {
+          console.log("Error:", getData?.message);
+
+        }
+      } catch (error) {
+        console.error('Failed to fetch user data:', error);
+      }
+    };
+    fetchUserData();
+  }, [id]);
 
   const handleEditToggle = () => {
     setIsEditing(!isEditing);
@@ -33,7 +44,7 @@ export default function ProfileInfo(props) {
   const handleProfilePicChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setNewProfilePic(URL.createObjectURL(file));
+      setProfilePic(URL.createObjectURL(file));
       // You might also want to handle uploading the file to your server here
     }
   };
@@ -60,7 +71,7 @@ export default function ProfileInfo(props) {
     }
   }
 
-  return !userProfile ? (
+  return !profileData ? (
     <Container>
       <h2>
         Sorry, User Doesn't Exist!😕
@@ -69,7 +80,7 @@ export default function ProfileInfo(props) {
   ) : (
     <Container>
       <ProfilePicContainer>
-        <ProfilePic src={newProfilePic || profilePic} alt="profilePic" />
+        <ProfilePic src={profilePic} alt="profilePic" />
         <FileInputWrapper>
           <label htmlFor="profile-pic-upload" className="custom-file-upload">
             Edit Photo
@@ -91,7 +102,7 @@ export default function ProfileInfo(props) {
               <Col md={6}>
                 <Input
                   type="text"
-                  name="fullname"
+                  name="fullName"
                   value={profileData.fullName}
                   onChange={handleChange}
                   placeholder="Full Name"
@@ -160,11 +171,11 @@ export default function ProfileInfo(props) {
               </p>
             </Stats>
             <Bio>
-              <p className="fullname">
-                <strong>{profileData.fullName}</strong>
+              <p className="fullName">
+                <strong>{profileData?.fullName}</strong>
               </p>
-              <p className="category">{profileData.qualification}</p>
-              <p>{profileData.bio}</p>
+              <p className="category">{profileData?.qualification}</p>
+              <p>{profileData?.bio}</p>
             </Bio>
             <StyledButton className='mt-4' onClick={handleEditToggle}>Edit</StyledButton>
           </>

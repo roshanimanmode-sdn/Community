@@ -18,7 +18,7 @@ export const tokenVerification = async (req, res, next) => {
       async (err, decoded) => {
         if (!err) {
           req.user = decoded;
-          console.log("req.user--",req.user);
+          // console.log("req.user--",req.user);
           next();
         }
         //err

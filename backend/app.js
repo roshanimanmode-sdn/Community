@@ -2,7 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import { mongoconnection } from './db';
 import bodyParser from 'body-parser';
-import usersRouter from './routes/user'; // Use the default import
+import usersRouter from './routes/user';
+import archieveRouter from './routes/archieve'; 
 
 const app = express();
 mongoconnection();
@@ -12,6 +13,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(bodyParser.json({ limit: "50mb" }));
 
-app.use('/user', usersRouter); // Add a route prefix to make it clear
+app.use('/user', usersRouter);
+app.use('/archieve', archieveRouter);
 
 export default app;
