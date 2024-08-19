@@ -15,9 +15,9 @@ import BookmarkBorderIcon from "@material-ui/icons/BookmarkBorder";
 import SentimentSatisfiedOutlinedIcon from "@material-ui/icons/SentimentSatisfiedOutlined";
 import DefaultPic from "../../assets/img/default_image.png"
 import {
-    focusOnComment,
-    handleShowMore,
-    handleCommentLike
+  focusOnComment,
+  handleShowMore,
+  handleCommentLike
 } from "../../Features/PostActionMethods";
 import { fetchAllUsers } from '../../Services/Auth.service';
 import archieveIcon from "../../assets/sidebar/archieve.svg";
@@ -26,173 +26,184 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 export default function Posts() {
-    const dispatch = useDispatch();
-    const user = useSelector((state) => state);
-    // console.log("user--",user);
-    
-    const [allPosts, setAllPosts] = useState([]);
-    const [archeive, setArchieve] = useState(false);
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state);
 
-    useEffect(() => {
-      const fetchAllUserData = async () => {
-          try {
-              const getData = await fetchAllUsers(dispatch);
-              if (getData?.status) {
-                  setAllPosts(getData?.data);
-                  // console.log("allPosts",getData?.data);
-              } else {
-                console.log("Error:",getData?.message);
-                
-              }
-          } catch (error) {
-              console.error('Failed to fetch user data:', error);
-          }
-      };
-  
-      fetchAllUserData();
-  }, []);
+  const [allPosts, setAllPosts] = useState([]);
+  const [archiveStatus, setArchiveStatus] = useState({});
 
-    const [comment, setComment] = useState("");
+  useEffect(() => {
+    const fetchAllUserData = async () => {
+      try {
+        const getData = await fetchAllUsers(dispatch);
+        if (getData?.status) {
+          setAllPosts(getData?.data);
+          // console.log("allPosts",getData?.data);
+        } else {
+          console.log("Error:", getData?.message);
 
-    const handleCommentPost = (event, id) => {
-        event.preventDefault();
-        dispatch(postComment([comment, id]));
-        setComment("");
+        }
+      } catch (error) {
+        console.error('Failed to fetch user data:', error);
+      }
     };
 
-    const handleArchieve = async(userId) => {
-      setArchieve(!archeive);
-      if(archeive) {
-        const response = await archieveUserAPI({userId: userId});
-        console.log("archieve user res--",response);
-        if(response?.status) {
-          toast.success(response?.message);
-        }
-      }
+    fetchAllUserData();
+  }, []);
+
+  const [comment, setComment] = useState("");
+
+  const handleCommentPost = (event, id) => {
+    event.preventDefault();
+    dispatch(postComment([comment, id]));
+    setComment("");
+  };
+
+  const handleArchive = async (userId, postId) => {
+    const response = await archieveUserAPI(userId, postId);
+    if (response?.status) {
+      toast.success(response?.message);
+
+      // Update the archive state for the specific post
+      setArchiveStatus((prevState) => ({
+        ...prevState,
+        [postId]: !prevState[postId],
+      }));
     }
+  }
 
-    return (
-        <>
-            <Container>
-                {allPosts?.length !== 0 ? (
-                    allPosts.map((postData) => {
+  return (
+    <>
+      <Container>
+        {allPosts?.length !== 0 ? (
+          allPosts.map((postData) => {
+            return (
+              <UserPost
+                key={postData._id}
+                className={`post-${postData.postID}`}
+              >
+                <UserInfo>
+                  <div className="post-info">
+                    <div className="icon">
+                      <img src={postData?.profilePic ? postData?.profilePic : DefaultPic} alt="icon" />
+                    </div>
+                    <div className="id-location">
+                      <p className="user owner-id">
+                        <Link to={`/profile/${postData?._id}`}>
+                          {postData?.fullName}
+                        </Link>
+                      </p>
+                      <p className="location">{postData?.address ? postData?.address : "Nagpur"}</p>
+                    </div>
+                  </div>
+                  <MoreHorizIcon />
+                </UserInfo>
+                <Media onDoubleClick={() => dispatch(likePost(postData?._id))}>
+                  <FavoriteIcon className={"like-post-" + postData?._id} />
+                  <img src={postData?.profilePic ? postData?.profilePic : DefaultPic} alt="post" />
+                </Media>
+                <PostInfo>
+                  <PostActionIcons>
+                    <div className="actions">
+                      <FavoriteIcon
+                        className={`like-icon ${postData?.isLiked ? "liked" : ""}`}
+                        onClick={() => dispatch(handleLike(postData?._id))}
+                      />
+                      <ChatBubbleOutlineOutlinedIcon
+                        onClick={() => focusOnComment(postData.postID)}
+                      />
+                      <TelegramIcon />
+                    </div>
+                    <div className="save" onClick={() => handleArchive(user?.auth?.data?._id, postData?._id)}>
+                      {archiveStatus[postData._id] ? (
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
+                          <path d="M0 0h24v24H0z" fill="none" />
+                          <path d="M17 3H7c-1.1 0-1.99.9-1.99 2L5 21l7-3 7 3V5c0-1.1-.9-2-2-2zm0 15l-5-2.18L7 18V5h10v13z" />
+                        </svg>
+                      ) : (
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
+                          <path d="M0 0h24v24H0z" fill="none" />
+                          <path d="M17 3H7c-1.1 0-1.99.9-1.99 2L5 21l7-3 7 3V5c0-1.1-.9-2-2-2z" />
+                        </svg>
+                      )}
+                    </div>
+                  </PostActionIcons>
+                  <Likes>{postData?.likes ? postData?.likes : 999} likes</Likes>
+                  {/* About Yourself */}
+                  <Caption>
+                    <div className={`content-${postData?._id} hideContent`}>
+                      <span className="user owner-id">
+                        <Link to={`/profile/${postData?._id}`}>
+                          {postData?.fullName}
+                        </Link>
+                      </span>
+                      {postData?.aboutYourself ? postData?.aboutYourself : ""}
+                    </div>
+                    <span
+                      onClick={(e) => handleShowMore(e, `${postData?._id}`)}
+                      className="show-more"
+                    >
+                      <a href="#">...more</a>
+                    </span>
+                  </Caption>
+
+                  <Comments>
+                    {postData?.comments?.length !== 0 ? (
+                      postData?.comments?.map((comment) => {
                         return (
-                            <UserPost
-                                key={postData._id}
-                                className={`post-${postData.postID}`}
-                            >
-                                <UserInfo>
-                                    <div className="post-info">
-                                        <div className="icon">
-                                            <img src={postData?.profilePic ? postData?.profilePic : DefaultPic} alt="icon" />
-                                        </div>
-                                        <div className="id-location">
-                                            <p className="user owner-id">
-                                                <Link to={`/profile/${postData?._id}`}>
-                                                    {postData?.fullName}
-                                                </Link>
-                                            </p>
-                                            <p className="location">{postData?.address ? postData?.address : "Nagpur"}</p>
-                                        </div>
-                                    </div>
-                                    <MoreHorizIcon />
-                                </UserInfo>
-                                <Media onDoubleClick={() => dispatch(likePost(postData?._id))}>
-                                    <FavoriteIcon className={"like-post-" + postData?._id} />
-                                    <img src={postData?.profilePic ? postData?.profilePic : DefaultPic} alt="post" />
-                                </Media>
-                                <PostInfo>
-                                    <PostActionIcons>
-                                        <div className="actions">
-                                            <FavoriteIcon
-                                                className={`like-icon ${postData?.isLiked ? "liked" : ""}`}
-                                                onClick={() => dispatch(handleLike(postData?._id))}
-                                            />
-                                            <ChatBubbleOutlineOutlinedIcon
-                                                onClick={() => focusOnComment(postData.postID)}
-                                            />
-                                            <TelegramIcon />
-                                        </div>
-                                        <div className="save" onClick={() => handleArchieve(postData._id)}>
-                                            {archeive ? <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0z" fill="none"/><path d="M17 3H7c-1.1 0-1.99.9-1.99 2L5 21l7-3 7 3V5c0-1.1-.9-2-2-2zm0 15l-5-2.18L7 18V5h10v13z"/></svg> : <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0z" fill="none"/><path d="M17 3H7c-1.1 0-1.99.9-1.99 2L5 21l7-3 7 3V5c0-1.1-.9-2-2-2z"/></svg>}
-                                        </div>
-                                    </PostActionIcons>
-                                    <Likes>{postData?.likes ? postData?.likes : 999} likes</Likes>
-                                    {/* About Yourself */}
-                                    <Caption>
-                                        <div className={`content-${postData?._id} hideContent`}>
-                                            <span className="user owner-id">
-                                                <Link to={`/profile/${postData?._id}`}>
-                                                    {postData?.fullName}
-                                                </Link>
-                                            </span>
-                                            {postData?.aboutYourself ? postData?.aboutYourself : ""}
-                                        </div>
-                                        <span
-                                            onClick={(e) => handleShowMore(e, `${postData?._id}`)}
-                                            className="show-more"
-                                        >
-                                            <a href="#">...more</a>
-                                        </span>
-                                    </Caption>
-
-                                    <Comments>
-                                        {postData?.comments?.length !== 0 ? (
-                                            postData?.comments?.map((comment) => {
-                                                return (
-                                                    <li key={comment[1]}>
-                                                        <div>
-                                                            <Link to={`/profile/${comment[0]}`}>
-                                                                <p className="user">{comment[0]}</p>
-                                                            </Link>
-                                                            <p className="comment">{comment[1]}</p>
-                                                        </div>
-                                                        <div>
-                                                            <FavoriteIcon
-                                                                onClick={handleCommentLike}
-                                                                style={{ fontSize: 11 }}
-                                                            />
-                                                        </div>
-                                                    </li>
-                                                );
-                                            })
-                                        ) : (
-                                            <p className="empty-comment-box">No Comments Yet!</p>
-                                        )}
-                                    </Comments>
-
-                                    <CommentInput>
-                                        <SentimentSatisfiedOutlinedIcon
-                                            onClick={(event) =>
-                                                handleEmoji(event, `${postData.postID}`)
-                                            }
-                                        />
-                                        <form onSubmit={(e) => handleCommentPost(e, postData.postID)}>
-                                            <input
-                                                className={`comment-input-${postData.postID}`}
-                                                type="text"
-                                                placeholder="Add a comment..."
-                                                value={comment}
-                                                onChange={(e) => setComment(e.target.value)}
-                                            />
-                                        </form>
-                                        <a
-                                            href="#"
-                                            onClick={(e) => handleCommentPost(e, postData.postID)}
-                                        >
-                                            Post
-                                        </a>
-                                    </CommentInput>
-                                </PostInfo>
-                            </UserPost>
+                          <li key={comment[1]}>
+                            <div>
+                              <Link to={`/profile/${comment[0]}`}>
+                                <p className="user">{comment[0]}</p>
+                              </Link>
+                              <p className="comment">{comment[1]}</p>
+                            </div>
+                            <div>
+                              <FavoriteIcon
+                                onClick={handleCommentLike}
+                                style={{ fontSize: 11 }}
+                              />
+                            </div>
+                          </li>
                         );
-                    })
-                ) : (
-                    <h1>No Posts Yet!</h1>
-                )}
-            </Container>
-        </>
-    )
+                      })
+                    ) : (
+                      <p className="empty-comment-box">No Comments Yet!</p>
+                    )}
+                  </Comments>
+
+                  <CommentInput>
+                    <SentimentSatisfiedOutlinedIcon
+                      onClick={(event) =>
+                        handleEmoji(event, `${postData.postID}`)
+                      }
+                    />
+                    <form onSubmit={(e) => handleCommentPost(e, postData.postID)}>
+                      <input
+                        className={`comment-input-${postData.postID}`}
+                        type="text"
+                        placeholder="Add a comment..."
+                        value={comment}
+                        onChange={(e) => setComment(e.target.value)}
+                      />
+                    </form>
+                    <a
+                      href="#"
+                      onClick={(e) => handleCommentPost(e, postData.postID)}
+                    >
+                      Post
+                    </a>
+                  </CommentInput>
+                </PostInfo>
+              </UserPost>
+            );
+          })
+        ) : (
+          <h1>No Posts Yet!</h1>
+        )}
+      </Container>
+    </>
+  )
 }
 
 const Container = styled.div`

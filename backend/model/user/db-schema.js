@@ -96,10 +96,6 @@ const userSchema = new mongoose.Schema(
       type: Array,
       default: [],
     },
-    archieves: {
-      type: Array,
-      default: [],
-    },
   },
   {
     versionKey: false,

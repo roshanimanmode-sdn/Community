@@ -9,10 +9,10 @@ usersRouter.post("/login", login);
 usersRouter.post("/forget-password", forgetPassword);
 usersRouter.post("/reset-password", resetPassword);
 usersRouter.put("/profile-visible", setProfileVisible);
+usersRouter.get("/get-all", getAllUsers);
 usersRouter.use(tokenVerification);
 usersRouter.put("/change-password", changePassword);
 usersRouter.get("/get-details", getUserDetails);
-usersRouter.get("/get-all", getAllUsers);
 usersRouter.put("/profile-update", updateProfile);
 
 

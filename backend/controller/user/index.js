@@ -295,7 +295,7 @@ export const updateProfile = async (req, res) => {
 export const setProfileVisible = async (req, res) => {
   try {
     const { userId, isProfileVisible } = req.body;
-    console.log("req.body--",req.body);
+    // console.log("req.body--",req.body);
     let user = await User.findOne({ _id: mongoose.Types.ObjectId(userId) });
     if (!user) {
       return res.status(responseCodes.failureCode).json({
@@ -305,7 +305,7 @@ export const setProfileVisible = async (req, res) => {
       });
     } else {
       const updateData = await User.findByIdAndUpdate({ _id: mongoose.Types.ObjectId(userId) }, { $set: { isProfileVisible: isProfileVisible } }, { $new: true })
-      console.log("updateData--", updateData);
+      // console.log("updateData--", updateData);
       if (updateData) {
         return res.status(responseCodes.successCode).json({
           status: responseStatus.successStatus,
@@ -361,7 +361,7 @@ export const getUserDetails = async (req, res) => {
 // Get all Users Data
 export const getAllUsers = async (req, res) => {
   try {
-    const user = await User.find({ isProfileVisible: true, isActive: true });
+    const user = await User.find({ isProfileVisible: true, isActive: true });    
     if (!user) {
       return res.status(responseCodes.failureCode).json({
         status: responseStatus.failedStatus,
